@@ -121,17 +121,30 @@
 
 ---
 
-## ۷) لیست کارهای باقی‌ماندهٔ انتشار
+## ۷) لینک سیاست حریم خصوصی (در فرم فروشگاه وارد کن)
 
-- [ ] دانلود APK ریلیز امضاشده از artifacts
-- [ ] فعال‌سازی GitHub Pages برای لینک سیاست حریم خصوصی (Settings → Pages → Source: GitHub Actions)
-- [ ] لینک سیاست حریم خصوصی: `https://abolfazl-samadi283.github.io/chai/`
+| گزینه | URL | وضعیت |
+|---|---|---|
+| **پیشنهادی (HTML)** | `https://raw.githack.com/ABOLFAZL-SAMADI283/chai/main/store/privacy-policy.html` | ✅ آماده — همین الان کار می‌کند |
+| پشتیبان (سرور خودمان) | `https://jgeqpxhkltxtcbccywft.supabase.co/functions/v1/privacy-policy` | ✅ آماده — محتوا به‌صورت متن ساده |
+| بهترین (اختیاری) | `https://abolfazl-samadi283.github.io/chai/` | ⏳ نیاز به فعال‌سازی Pages در ریپو |
+
+> فعال‌سازی Pages (۳۰ ثانیه): در ریپو `Settings → Pages → Source: GitHub Actions` را انتخاب کن.
+> آن‌وقت workflow `pages.yml` خودکار سیاست را منتشر می‌کند و لینک بالا فعال می‌شود.
+
+## ۸) لیست کارهای باقی‌ماندهٔ انتشار
+
+- [x] دانلود APK ریلیز امضاشده از artifacts → `Desktop\Chai\chai-release.apk`
+- [x] دانلود AAB ریلیز امضاشده → `Desktop\Chai\chai-release.aab`
+- [x] تأیید امضا در CI (apksigner: v2 ✓، یک امضاکننده)
+- [x] متن کامل لیستینگ (عنوان، توضیح کوتاه، توضیح کامل، کلیدواژه، دسته‌بندی)
+- [x] سیاست حریم خصوصی روی URL عمومی
+- [x] ۵ اسکرین‌شات `store/screens/*.jpg` (۵۴۰×۱۱۵۰)
 - [ ] ثبت‌نام در پنل مایکت (نیاز به کارت ملی)
 - [ ] ثبت‌نام در پنل کافه‌بازار (نیاز به کارت ملی)
 - [ ] ساخت اکانت گوگل‌پلی (نیاز به کارت بانکی خارجی، ۲۵ دلار)
 - [ ] تکمیل فرم Data Safety در پلی
-- [ ] درج ۵ اسکرین‌شات `store/screens/*.jpg` (۵۴۰×۱۱۵۰)
-- [ ] آپلود AAB (ساختار بستهٔ Google Play) — برای مایکت/بازار APK کافی است
+- [ ] آپلود AAB در پلی / APK در مایکت و بازار
 
 ---
 
