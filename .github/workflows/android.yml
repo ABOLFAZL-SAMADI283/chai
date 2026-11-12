@@ -111,3 +111,26 @@ jobs:
           name: chai-release-aab
           path: app/build/outputs/bundle/release/*.aab
           retention-days: 90
+
+      # ── انتشار خودکار روی Supabase Storage (لینک عمومی برای دانلود از ایران) ──
+      - name: Publish release files to public storage
+        if: env.KEYSTORE_B64 != ''
+        env:
+          SB_URL: https://jgeqpxhkltxtcbccywft.supabase.co
+          SB_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          curl -sS -X POST "$SB_URL/storage/v1/object/releases/chai-release.apk" \
+            -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY" \
+            -H "x-upsert: true" \
+            -H "content-type: application/vnd.android.package-archive" \
+            --data-binary "@$APK"
+          AAB=$(ls app/build/outputs/bundle/release/*.aab | head -1 || true)
+          if [ -n "$AAB" ]; then
+            curl -sS -X POST "$SB_URL/storage/v1/object/releases/chai-release.aab" \
+              -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY" \
+              -H "x-upsert: true" \
+              -H "content-type: application/octet-stream" \
+              --data-binary "@$AAB"
+          fi
+          echo "APK → $SB_URL/storage/v1/object/public/releases/chai-release.apk"

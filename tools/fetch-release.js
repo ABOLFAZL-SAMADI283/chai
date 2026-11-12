@@ -17,12 +17,12 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 async function get(url, raw = false) {
   for (let i = 0; i < 5; i++) {
     try {
-      const r = await fetch(url, { headers: H, signal: AbortSignal.timeout(60000) });
+      const r = await fetch(url, { headers: H, signal: AbortSignal.timeout(raw ? 120000 : 30000) });
       if (raw) return r;
       return await r.json();
     } catch (e) {
       if (i === 4) throw e;
-      await sleep(3000 * (i + 1));
+      await sleep(5000 * (i + 1));
     }
   }
 }
