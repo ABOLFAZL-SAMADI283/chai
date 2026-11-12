@@ -142,7 +142,17 @@
 > ⚠️ کلید امضا (`release.jks`) هرگز نباید گم شود — بدون آن، آپلود نسخهٔ به‌روزشده ممکن نیست.
 > نسخهٔ پشتیبان: در GitHub Secrets ریپو به‌صورت base64 ذخیره شده (`KEYSTORE_BASE64`).
 
-## ۹) لیست کارهای باقی‌ماندهٔ انتشار
+## ۹) لینک دانلود APK (برای تست و توزیع اولیه)
+
+```
+https://jgeqpxhkltxtcbccywft.supabase.co/storage/v1/object/public/releases/chai-release.apk
+```
+
+> این لینک روی Supabase Storage عمومی است و از داخل ایران بدون مشکل باز می‌شود
+> (CDN گیت‌هاب از این شبکه قطع است). هر بار که در CI بیلد بگیری، نسخهٔ جدید
+> خودکار همین‌جا آپلود می‌شود.
+
+## ۱۰) لیست کارهای باقی‌ماندهٔ انتشار
 
 - [x] دانلود APK ریلیز امضاشده از artifacts → `Desktop\Chai\chai-release.apk`
 - [x] دانلود AAB ریلیز امضاشده → `Desktop\Chai\chai-release.aab`
