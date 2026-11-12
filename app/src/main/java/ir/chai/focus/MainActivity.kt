@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -57,6 +58,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import ir.chai.focus.auth.AuthRepository
 import ir.chai.focus.ui.Chai
 import ir.chai.focus.ui.ChaiBottomBar
@@ -66,6 +69,8 @@ import ir.chai.focus.ui.ChaiSplashScreen
 import ir.chai.focus.ui.ChaiSpring
 import ir.chai.focus.ui.ChaiFadeIn
 import ir.chai.focus.ui.ChaiFadeOut
+import ir.chai.focus.ui.PermissionBanner
+import ir.chai.focus.ui.PermissionCard
 import ir.chai.focus.ui.ProfileScreen
 import ir.chai.focus.ui.SettingsScreen
 import ir.chai.focus.ui.ThemeMode
@@ -137,6 +142,17 @@ fun ChaiApp(
     var activeCount by remember { mutableIntStateOf(visits?.cachedActive() ?: 0) }
     var todayOpens by remember { mutableIntStateOf(visits?.todayOpens ?: 0) }
 
+    // ── وضعیت دسترسی‌ها: هر بار که کاربر از تنظیمات برمی‌گردد دوباره بررسی می‌شود ──
+    var perms by remember { mutableStateOf(PermState.read(ctx)) }
+    val activity = ctx as? androidx.activity.ComponentActivity
+    DisposableEffect(activity) {
+        val obs = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) perms = PermState.read(ctx)
+        }
+        activity?.lifecycle?.addObserver(obs)
+        onDispose { activity?.lifecycle?.removeObserver(obs) }
+    }
+
     LaunchedEffect(Unit) {
         // ثبت در سرور (fire & forget) + گرفتن شمارنده
         repo.logVisit(visits?.anonId ?: "anon", "app_open").onFailure { }
@@ -203,6 +219,9 @@ fun ChaiApp(
                         defaultMinutes = defaultMinutes,
                         activeNow = activeCount,
                         todayOpens = todayOpens,
+                        perms = perms,
+                        onOpenAccessibility = { Permissions.openAccessibilitySettings(ctx) },
+                        onOpenUsage = { Permissions.openUsageAccessSettings(ctx) },
                         onStart = { goal, minutes ->
                             session = ActiveSession(goal = goal, totalSec = minutes * 60)
                         }
@@ -213,6 +232,10 @@ fun ChaiApp(
                             onThemeChange = onThemeChange,
                             defaultMinutes = defaultMinutes,
                             onDefaultMinutes = { defaultMinutes = it },
+                            perms = perms,
+                            onOpenAccessibility = { Permissions.openAccessibilitySettings(ctx) },
+                            onOpenUsage = { Permissions.openUsageAccessSettings(ctx) },
+                            onOpenAppDetails = { Permissions.openAppDetails(ctx) },
                             onBack = { settingsOpen = false }
                         )
                     } else {
@@ -246,6 +269,9 @@ fun HomeScreen(
     defaultMinutes: Int = 30,
     activeNow: Int = 0,
     todayOpens: Int = 0,
+    perms: PermState = PermState(),
+    onOpenAccessibility: () -> Unit = {},
+    onOpenUsage: () -> Unit = {},
     onStart: (Goal, Int) -> Unit
 ) {
     var goal by rememberSaveable { mutableStateOf(Goal.STUDY) }
@@ -269,6 +295,13 @@ fun HomeScreen(
                 }
                 GoalIcon(goal)
             }
+
+            // ── بنر دسترسی‌ها (فقط وقتی چیزی کم است) ──
+            PermissionBanner(
+                perms = perms,
+                onOpenAccessibility = onOpenAccessibility,
+                onOpenUsage = onOpenUsage
+            )
 
             // ── انگیزه: همین الان چند نفر مثل تو فعال هستند ──
             if (activeNow > 0) {

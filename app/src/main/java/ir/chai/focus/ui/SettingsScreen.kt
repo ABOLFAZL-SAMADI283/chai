@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import ir.chai.focus.PermState
 
 /** حالت نمایش برنامه */
 enum class ThemeMode { LIGHT, DARK, SYSTEM }
@@ -51,6 +52,10 @@ fun SettingsScreen(
     defaultMinutes: Int,
     onDefaultMinutes: (Int) -> Unit,
     onBack: () -> Unit,
+    perms: PermState = PermState(),
+    onOpenAccessibility: () -> Unit = {},
+    onOpenUsage: () -> Unit = {},
+    onOpenAppDetails: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -87,6 +92,16 @@ fun SettingsScreen(
                     color = Chai.Text2
                 )
             }
+        }
+
+        // ── دسترسی‌ها ──
+        item {
+            PermissionCard(
+                perms = perms,
+                onOpenAccessibility = onOpenAccessibility,
+                onOpenUsage = onOpenUsage,
+                onOpenAppDetails = onOpenAppDetails
+            )
         }
 
         // ── تمرکز ──

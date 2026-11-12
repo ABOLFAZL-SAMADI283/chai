@@ -53,6 +53,7 @@ data class ActiveSession(
 fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSec: Int) -> Unit) {
     var remaining by remember { mutableIntStateOf(session.totalSec) }
     var askCancel by remember { mutableStateOf(false) }
+    var blockerLive by remember { mutableStateOf(FocusBlockerService.isConnected()) }
     val elapsed = session.totalSec - remaining
     val progress by animateFloatAsState(
         targetValue = if (session.totalSec > 0) elapsed.toFloat() / session.totalSec else 0f,
@@ -74,6 +75,7 @@ fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSe
             return@LaunchedEffect
         }
         FocusBlockerService.remainingSec = remaining
+        blockerLive = FocusBlockerService.isConnected()
         delay(1000)
         remaining -= 1
     }
@@ -117,11 +119,12 @@ fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSe
             )
 
             Spacer(Modifier.height(16.dp))
+            // وضعیت واقعی سرویس قفل — صادقانه: اگر Accessibility روشن نباشد، قفلی انجام نمی‌شود
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier
-                    .background(Chai.Soft, RoundedCornerShape(999.dp))
+                    .background(if (blockerLive) Chai.Soft else Chai.Milk, RoundedCornerShape(999.dp))
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 androidx.compose.foundation.Image(
@@ -130,9 +133,10 @@ fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSe
                     modifier = Modifier.size(16.dp)
                 )
                 Text(
-                    "اپ‌های حواس‌پرت‌کن قفل شدند",
+                    if (blockerLive) "اپ‌های حواس‌پرت‌کن قفل شدند"
+                    else "⚠️ سرویس قفل فعال نیست — Accessibility را روشن کن",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Chai.Primary
+                    color = if (blockerLive) Chai.Primary else Chai.Danger
                 )
             }
 
