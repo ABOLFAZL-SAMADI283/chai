@@ -53,11 +53,12 @@ jobs:
       - name: Restore keystore
         if: env.KEYSTORE_B64 != ''
         run: |
-          echo "$KEYSTORE_B64" | base64 -d > release.jks
+          echo "$KEYSTORE_B64" | base64 -d > "${{ github.workspace }}/release.jks"
+          ls -l "${{ github.workspace }}/release.jks"
           echo "KEYSTORE_PASS=$KEYSTORE_PASS" >> $GITHUB_ENV
           echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
           echo "KEY_PASS=$KEY_PASS" >> $GITHUB_ENV
-          echo "KEYSTORE_PATH=release.jks" >> $GITHUB_ENV
+          echo "KEYSTORE_PATH=${{ github.workspace }}/release.jks" >> $GITHUB_ENV
 
       - name: Build release APK
         if: env.KEYSTORE_B64 != ''

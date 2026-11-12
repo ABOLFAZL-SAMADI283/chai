@@ -23,7 +23,8 @@ android {
     signingConfigs {
         // برای ساخت CI، کلید از secrets گیرفته می‌شود
         create("release") {
-            storeFile = file(System.getenv("KEYSTORE_PATH") ?: "release.jks")
+            // مسیر نسبت به ریشهٔ پروژه (keystore در CI ریشهٔ ریپو ساخته می‌شود)
+            storeFile = rootProject.file(System.getenv("KEYSTORE_PATH") ?: "release.jks")
             storePassword = System.getenv("KEYSTORE_PASS")
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASS")
