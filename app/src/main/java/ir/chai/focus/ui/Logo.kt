@@ -63,7 +63,7 @@ fun ChaiLogo(
                 moveTo(left, top)
                 lineTo(right, top)
                 lineTo(right - (right - left) * 0.12f, bottom)
-                quadTo((left + right) / 2f, bottom + h * 0.05f, left + (right - left) * 0.12f, bottom)
+                quadraticTo((left + right) / 2f, bottom + h * 0.05f, left + (right - left) * 0.12f, bottom)
                 close()
             }
 
@@ -120,7 +120,7 @@ fun ChaiLogoMark(modifier: Modifier = Modifier, size: Dp = 40.dp) {
         val body = Path().apply {
             moveTo(left, top); lineTo(right, top)
             lineTo(right - (right - left) * 0.12f, bottom)
-            quadTo((left + right) / 2f, bottom + h * 0.05f, left + (right - left) * 0.12f, bottom)
+            quadraticTo((left + right) / 2f, bottom + h * 0.05f, left + (right - left) * 0.12f, bottom)
             close()
         }
         drawArc(

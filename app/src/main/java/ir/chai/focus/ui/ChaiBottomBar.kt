@@ -3,6 +3,7 @@ package ir.chai.focus.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -71,7 +72,7 @@ fun ChaiBottomBar(
 ) {
     val index = ChaiTab.entries.indexOf(current)
     val indicatorX by animateDpAsState(
-        targetValue = (index * TabWidth) + (TabWidth - IndicatorWidth) / 2,
+        targetValue = TabWidth * index + (TabWidth - IndicatorWidth) / 2,
         animationSpec = ChaiSpringDp,
         label = "navIndicator"
     )

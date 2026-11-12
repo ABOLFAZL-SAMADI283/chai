@@ -7,11 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -187,7 +191,7 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
                 moveTo(left, top)
                 lineTo(right, top)
                 lineTo(right - (right - left) * 0.12f, bottom)
-                quadTo((left + right) / 2f, bottom + h * 0.04f, left + (right - left) * 0.12f, bottom)
+                quadraticTo((left + right) / 2f, bottom + h * 0.04f, left + (right - left) * 0.12f, bottom)
                 close()
             }
 
@@ -219,9 +223,9 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
             // بخار
             val steam = Path().apply {
                 moveTo(w * 0.40f, top - h * 0.06f)
-                quadTo(w * 0.46f, top - h * 0.14f, w * 0.40f, top - h * 0.20f)
+                quadraticTo(w * 0.46f, top - h * 0.14f, w * 0.40f, top - h * 0.20f)
                 moveTo(w * 0.54f, top - h * 0.04f)
-                quadTo(w * 0.60f, top - h * 0.12f, w * 0.54f, top - h * 0.18f)
+                quadraticTo(w * 0.60f, top - h * 0.12f, w * 0.54f, top - h * 0.18f)
             }
             drawPath(
                 steam,

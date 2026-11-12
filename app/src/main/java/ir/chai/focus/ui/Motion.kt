@@ -42,7 +42,7 @@ fun AnimatedNumber(
 ) {
     val animated by animateIntAsState(
         targetValue = value,
-        animationSpec = ChaiSlow,
+        animationSpec = tween(durationMillis = 700),
         label = "countUp"
     )
     Text(text = "$animated$suffix", style = style, color = color, modifier = modifier)
