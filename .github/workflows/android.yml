@@ -81,6 +81,24 @@ jobs:
           path: app/build/outputs/apk/release/*.apk
           retention-days: 90
 
+      - name: APK info (badging)
+        if: env.KEYSTORE_B64 != ''
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          AAPT=$(ls "$ANDROID_HOME"/build-tools/*/aapt | tail -1)
+          echo "aapt: $AAPT"
+          "$AAPT" dump badging "$APK" | tee app-release-info.txt
+          echo "" | tee -a app-release-info.txt
+          "$AAPT" dump permissions "$APK" | tee -a app-release-info.txt
+
+      - name: Upload release info
+        if: env.KEYSTORE_B64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: chai-release-info
+          path: app-release-info.txt
+          retention-days: 90
+
       # ── بستهٔ AAB برای گوگل‌پلی (مایکت/بازار APK کافی است) ──
       - name: Build release AAB
         if: env.KEYSTORE_B64 != ''
