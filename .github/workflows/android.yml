@@ -64,10 +64,32 @@ jobs:
         if: env.KEYSTORE_B64 != ''
         run: gradle assembleRelease --no-daemon --stacktrace
 
+      - name: Verify release signature
+        if: env.KEYSTORE_B64 != ''
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          echo "APK: $APK"
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)
+          echo "apksigner: $APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+
       - name: Upload release APK
         if: env.KEYSTORE_B64 != ''
         uses: actions/upload-artifact@v4
         with:
           name: chai-release-apk
           path: app/build/outputs/apk/release/*.apk
-          retention-days: 30
+          retention-days: 90
+
+      # ── بستهٔ AAB برای گوگل‌پلی (مایکت/بازار APK کافی است) ──
+      - name: Build release AAB
+        if: env.KEYSTORE_B64 != ''
+        run: gradle bundleRelease --no-daemon --stacktrace
+
+      - name: Upload release AAB
+        if: env.KEYSTORE_B64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: chai-release-aab
+          path: app/build/outputs/bundle/release/*.aab
+          retention-days: 90
