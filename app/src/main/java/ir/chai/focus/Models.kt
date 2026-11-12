@@ -12,7 +12,7 @@ data class FocusSession(
     val completed: Boolean,    // آیا کامل شد (وگرنه جلسه شکست خورد)
     val synced: Boolean = false  // آیا به دیتابیس push شده؟
 ) {
-    val dateKey: String get() = dayKey(startedAt)
+    val dateKey: String get() = TimeFmt.dayKey(startedAt)
 }
 
 /** هدف‌های تمرکز — هر هدف لیست پیشنهادی اپ‌های حواس‌پرت‌کن خودش را دارد. */
@@ -100,7 +100,8 @@ object Distractors {
 }
 
 object TimeFmt {
-    fun mm:ss(totalSec: Int): String {
+    /** قالب mm:ss — نام تابع نباید دونقطه داشته باشد */
+    fun mmSs(totalSec: Int): String {
         val m = totalSec / 60
         val s = totalSec % 60
         return "%02d:%02d".format(m, s)

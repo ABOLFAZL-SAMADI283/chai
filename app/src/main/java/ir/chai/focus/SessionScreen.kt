@@ -240,7 +240,7 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
                 .offset(x = (-6).dp, y = 11.dp)
         ) {
             Text(
-                TimeFmt.mm:ss(remainingSec),
+                TimeFmt.mmSs(remainingSec),
                 style = timerStyle,
                 fontWeight = FontWeight.Black,
                 color = if (remainingSec < 60) Color(0xFFFF6B6B) else Chai.Milk

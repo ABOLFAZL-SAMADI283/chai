@@ -1,9 +1,9 @@
 package ir.chai.focus
 
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityEvent
 import android.content.Intent
 import android.util.Log
+import android.view.accessibility.AccessibilityEvent
 
 /**
  * سرویس قفل اپ‌های حواس‌پرت‌کن.

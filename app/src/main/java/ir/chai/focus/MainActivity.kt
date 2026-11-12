@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -65,6 +66,7 @@ import ir.chai.focus.ui.ChaiSplashScreen
 import ir.chai.focus.ui.ChaiSpring
 import ir.chai.focus.ui.ChaiFadeIn
 import ir.chai.focus.ui.ChaiFadeOut
+import ir.chai.focus.ui.ProfileScreen
 import ir.chai.focus.ui.SettingsScreen
 import ir.chai.focus.ui.ThemeMode
 import kotlinx.coroutines.delay
@@ -111,6 +113,7 @@ object ThemePrefs {
     }
 }
 
+@Composable
 fun ThemeMode.resolve(): Boolean = when (this) {
     ThemeMode.LIGHT -> false
     ThemeMode.DARK -> true
@@ -153,7 +156,27 @@ fun ChaiApp(
     }
 
     if (session != null) {
-        SessionScreen(session!!, onExit = { session = null })
+        val active = session!!
+        SessionScreen(
+            session = active,
+            onExit = { completed, elapsed ->
+                // ثبت جلسه در حافظهٔ محلی
+                runCatching {
+                    val store = SessionStore(ctx)
+                    store.add(
+                        FocusSession(
+                            id = "s_" + System.currentTimeMillis(),
+                            goal = active.goal.id,
+                            plannedSec = active.totalSec,
+                            actualSec = elapsed,
+                            startedAt = active.startedAt,
+                            completed = completed
+                        )
+                    )
+                }
+                session = null
+            }
+        )
         return
     }
 

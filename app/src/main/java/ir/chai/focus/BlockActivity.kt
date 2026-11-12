@@ -106,7 +106,7 @@ fun BlockScreen(goalLabel: String, onBack: () -> Unit) {
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        TimeFmt.mm:ss(remaining),
+                        TimeFmt.mmSs(remaining),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Black,
                         color = Chai.Milk
