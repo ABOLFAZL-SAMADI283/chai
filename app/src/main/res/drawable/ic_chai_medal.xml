@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- medal -->
+    <path android:fillColor="#0F766E" android:pathData="M7.4,2.5 L11,2.5 L13.4,8.2 L10.2,9.2 Z"/>
+    <path android:fillColor="#14B8A6" android:pathData="M13.2,2.5 L16.8,2.5 L13.8,9.2 L10.6,8.2 Z"/>
+    <path android:fillColor="#D4A017"
+        android:pathData="M12,9.4 m-6.2,0 a6.2,6.2 0 1,0 12.4,0 a6.2,6.2 0 1,0 -12.4,0"/>
+    <path android:fillColor="#F5EFDF" android:pathData="M12,9.4 m-3.6,0 a3.6,3.6 0 1,0 7.2,0 a3.6,3.6 0 1,0 -7.2,0"/>
+    <path android:fillColor="#D4A017" android:pathData="M12,7.4 L12.8,9 L14.5,9.2 L13.3,10.5 L13.6,12.2 L12,11.4 L10.4,12.2 L10.7,10.5 L9.5,9.2 L11.2,9 Z"/>
+</vector>

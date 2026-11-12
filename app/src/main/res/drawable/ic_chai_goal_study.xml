@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- stack of books -->
+    <path android:fillColor="#0F766E" android:pathData="M3,8 L12,6 L12,10 L3,12 Z"/>
+    <path android:fillColor="#14B8A6" android:pathData="M3,12.5 L12,10.5 L12,14.5 L3,16.5 Z"/>
+    <path android:fillColor="#8B5E3C" android:pathData="M3,17 L12,15 L12,19 L3,21 Z"/>
+    <!-- pencil -->
+    <path android:fillColor="#D4A017" android:pathData="M14.5,4.2 L19.8,9.5 L17.9,11.4 L12.6,6.1 Z"/>
+    <path android:fillColor="#8B5E3C" android:pathData="M12.6,6.1 L11.4,7.3 L13.5,9.4 L14.7,8.2 Z"/>
+</vector>

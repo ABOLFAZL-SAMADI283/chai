@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">چای</string>
+    <string name="accessibility_label">قفل اپ‌های حواس‌پرت‌کن</string>
+    <string name="accessibility_description">برای قفل کردن اپ‌های حواس‌پرت‌کن در زمان تمرکز استفاده می‌شود. فقط زمانی فعال است که شما یک جلسهٔ تمرکز را شروع کرده‌اید.</string>
+</resources>

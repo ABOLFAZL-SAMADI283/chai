@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>چای — ماکت نهایی</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#FBF7F0;--surface:#fff;--primary:#0F766E;--primary2:#14B8A6;--soft:#CCFBF1;--tea:#8B5E3C;
+        --milk:#F5EFDF;--gold:#D4A017;--gold2:#F59E0B;--text:#1C1917;--text2:#78716C;--line:#EDE4D8;--shadow:0 2px 10px rgba(28,25,23,.06)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#F2EDE4;font-family:Vazirmatn,Tahoma,sans-serif;padding:16px;color:var(--text);zoom:.38}
+  h1{font-size:22px;font-weight:900;margin-bottom:4px}
+  .sub{color:var(--text2);font-size:13px;margin-bottom:18px}
+  .row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;direction:ltr}
+  .phone{width:300px;background:var(--bg);border-radius:28px;box-shadow:0 10px 30px rgba(0,0,0,.12);
+         border:6px solid #1C1917;display:flex;flex-direction:column;overflow:hidden;direction:rtl}
+  .status{height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:11px;font-weight:700}
+  .ad{height:30px;background:repeating-linear-gradient(45deg,#EFE6D8,#EFE6D8 8px,#E7DCC9 8px,#E7DCC9 16px);
+      display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;color:#8B5E3C;border-bottom:1px solid var(--line)}
+  .body{padding:14px 16px 10px;flex:1;display:flex;flex-direction:column}
+  .cap{text-align:center;font-size:11px;color:var(--text2);margin-top:8px;font-weight:500}
+  .title{font-size:19px;font-weight:900}
+  .muted{color:var(--text2);font-size:12.5px}
+  .chiprow{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px 6px 6px;font-size:12.5px;
+        display:flex;gap:7px;align-items:center;box-shadow:var(--shadow)}
+  .chip.on{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+  .chip.on svg *{stroke:#fff}
+  .ico{width:26px;height:26px;flex:none}
+  .ico.sm{width:18px;height:18px}
+  .ico.lg{width:120px;height:120px}
+  .btn{background:var(--primary);color:#fff;border-radius:16px;text-align:center;padding:14px;font-weight:700;font-size:15px;margin-top:12px;box-shadow:0 6px 14px rgba(15,118,110,.25)}
+  .btn.ghost{background:transparent;color:var(--primary);box-shadow:none;border:1.5px solid var(--soft)}
+  .btn.gold{background:var(--gold2);box-shadow:0 6px 14px rgba(245,158,11,.3)}
+  .statcard{background:var(--surface);border-radius:18px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .big{font-size:40px;font-weight:900;font-variant-numeric:tabular-nums}
+  .bars{display:flex;align-items:flex-end;gap:7px;height:86px;margin-top:10px}
+  .bar{flex:1;background:var(--soft);border-radius:6px 6px 3px 3px;position:relative}
+  .bar.on{background:var(--primary)}
+  .bar span{position:absolute;top:-16px;left:0;right:0;text-align:center;font-size:9px;color:var(--text2)}
+  .days{display:flex;gap:4px;margin-top:8px}
+  .days div{flex:1;text-align:center;font-size:9px;color:var(--text2)}
+  .heat{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+  .heat i{aspect-ratio:1;border-radius:4px;background:#F3EDE3;display:block}
+  .l1{background:#D9F2EE!important}.l2{background:#A5E5DC!important}.l3{background:#5CC9BA!important}.l4{background:var(--primary)!important}
+  .rowitem{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .av{width:32px;height:32px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft)}
+  .av img{width:100%;height:100%;object-fit:cover}
+  .rank{width:18px;font-size:12px;font-weight:700;color:var(--text2);text-align:center}
+  .me{background:var(--soft);border-radius:12px;padding:8px}
+  .navbar{height:62px;background:var(--surface);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding:0 6px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text2);font-size:10px;font-weight:600;width:56px}
+  .tab.on{color:var(--primary)}
+  .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .tab.on svg{stroke-width:2.4}
+  .lockbg{background:#2A1F18;color:var(--milk);min-height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px}
+  .ring{width:126px;height:126px;border-radius:50%;border:9px solid rgba(245,239,223,.18);border-top-color:var(--gold);border-right-color:var(--gold);
+        margin:16px auto;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900}
+  .pal{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 20px}
+  .sw{width:112px;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);background:#fff;border:1px solid var(--line)}
+  .sw b{display:block;height:52px}
+  .sw span{display:block;font-size:10.5px;padding:6px 8px;color:var(--text2);line-height:1.5}
+  .sw span b{height:auto;display:inline;color:var(--text);font-weight:700}
+  .note{background:#fff;border:1px dashed var(--tea);border-radius:14px;padding:12px 14px;font-size:12.5px;line-height:1.9;max-width:330px;color:#4A3B2F}
+</style>
+</head>
+<body>
+<h1>☕ چای — ماکت نهایی</h1>
+<div class="sub">آیکون‌های وکتور اختصاصی (۱۱ آیکون، ۸ کیلوبایت کل) · آواتارها AI · نوار پایین مثل اینستا</div>
+
+<div class="pal">
+  <div class="sw"><b style="background:#FBF7F0"></b><span><b>bg</b><br>#FBF7F0</span></div>
+  <div class="sw"><b style="background:#0F766E"></b><span><b>primary</b><br>#0F766E</span></div>
+  <div class="sw"><b style="background:#14B8A6"></b><span><b>primary-2</b><br>#14B8A6</span></div>
+  <div class="sw"><b style="background:#CCFBF1"></b><span><b>soft</b><br>#CCFBF1</span></div>
+  <div class="sw"><b style="background:#8B5E3C"></b><span><b>tea</b><br>#8B5E3C</span></div>
+  <div class="sw"><b style="background:#F5EFDF"></b><span><b>milk</b><br>#F5EFDF</span></div>
+  <div class="sw"><b style="background:#D4A017"></b><span><b>gold</b><br>#D4A017</span></div>
+  <div class="sw"><b style="background:#1C1917"></b><span><b>text</b><br>#1C1917</span></div>
+</div>
+
+<div class="row">
+  <!-- ۱ خانه -->
+  <div>
+  <div class="phone">
+    <div class="status"><span>۹:۴۱</span><span>●●●</span></div>
+    <div class="body">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div class="title">سلام 👋</div><div class="muted">امروز ۲ ساعت و ۱۵ دقیقه تمرکز</div></div>
+        <svg class="ico" viewBox="0 0 24 24"><path fill="#F5EFDF" stroke="#8B5E3C" stroke-width="1.6" d="M4 6.5 L16 6.5 L14.6 19.4 C12.6 20.4 7.4 20.4 5.4 19.4 Z"/><path fill="#8B5E3C" d="M4.9 11.5 L15.1 11.5 L14.2 19 C12.4 19.8 7.6 19.8 5.8 19 Z"/><path fill="none" stroke="#8B5E3C" stroke-width="1.6" d="M16 8 C19.4 8 19.8 12.6 16.4 13.4 L15.9 11.6 C17.4 11.4 17.6 9.6 15.7 9.8 Z"/></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;background:var(--soft);border-radius:999px;padding:7px 12px;width:max-content">
+        <span style="width:8px;height:8px;border-radius:4px;background:var(--primary);display:inline-block"></span>
+        <span style="font-size:12.5px;color:var(--primary);font-weight:500">همین الان <b>۱۲۴</b> نفر مثل تو در حال تمرکز هستند</span>
+      </div>
+      <div class="muted" style="margin-top:6px;font-size:11.5px">امروز چای ۱٬۲۳۴ بار باز شده</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <span class="chip" style="padding:5px 10px"><svg class="ico sm" viewBox="0 0 24 24"><path fill="#F59E0B" d="M12 2.2C13.4 5.6 15.6 7 16.4 9.4 17.2 11.8 16 14.8 13.4 16.6 15 13.4 13.6 11.6 12.6 9.8 12.2 12.6 10.6 14 9.8 15.4 10.2 13 11 11 12 9.2 12.6 7.8 12.6 5.4 12 2.2Z"/><path fill="#D4A017" d="M12.4 12.4C13.2 14 12.8 16 11.6 17.2 10.4 18.4 8.6 18.6 7.6 17.6 6.4 16.4 6.4 14.4 7.6 12.6 8 14.4 9 15 10 15 9.6 13.8 10.8 13.2 12.4 12.4Z"/></svg>۷ روز پیاپی</span>
+        <span class="chip" style="padding:5px 10px"><svg class="ico sm" viewBox="0 0 24 24"><path fill="#0F766E" d="M7.4 2.5H11l2.4 5.7-3.2 1z"/><path fill="#14B8A6" d="M13.2 2.5h3.6l-3 6.7-3.2-1z"/><circle cx="12" cy="9.4" r="6.2" fill="#D4A017"/><circle cx="12" cy="9.4" r="3.6" fill="#F5EFDF"/><path fill="#D4A017" d="M12 7.4l.8 1.6 1.7.2-1.2 1.3.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.3 1.7-.2z"/></svg>لیگ نقره</span>
+      </div>
+      <div style="margin:12px 0 4px;text-align:center">
+        <svg class="ico lg" viewBox="0 0 24 24"><path fill="#F5EFDF" stroke="#8B5E3C" stroke-width=".8" d="M3 7 L17 7 L15.4 20.5 C13 21.6 7 21.6 4.6 20.5 Z"/><path fill="#8B5E3C" d="M4.2 12.5 L15.8 12.5 L14.8 20 C12.6 20.9 7.4 20.9 5.2 20 Z"/><path fill="none" stroke="#8B5E3C" stroke-width=".9" d="M17 8.6 C20.7 8.6 21.1 13.6 17.5 14.5 L16.9 12.5 C18.6 12.3 18.8 10.4 16.8 10.6 Z"/><path fill="#C9BBA6" d="M7.6 3.6C8.4 2.6 8.4 1.6 7.8.6 9.4 1.2 9.6 2.6 8.8 3.6Z"/><path fill="#C9BBA6" d="M12 3.4c.8-1 .8-2 .2-3 1.6.6 1.8 2 .9 3z"/></svg>
+        <div class="muted">ماگ خالی — آمادهٔ پر شدن</div>
+      </div>
+      <div class="muted">می‌خوام…</div>
+      <div class="chiprow">
+        <span class="chip on"><svg class="ico" viewBox="0 0 24 24"><path fill="#0F766E" d="M3 8 L12 6 L12 10 L3 12Z"/><path fill="#14B8A6" d="M3 12.5 L12 10.5 L12 14.5 L3 16.5Z"/><path fill="#8B5E3C" d="M3 17 L12 15 L12 19 L3 21Z"/><path fill="#D4A017" d="M14.5 4.2 L19.8 9.5 L17.9 11.4 L12.6 6.1Z"/></svg>درس بخونم</span>
+        <span class="chip"><svg class="ico" viewBox="0 0 24 24"><path fill="#CCFBF1" d="M12 5.5C10.2 4.2 7.8 4 4.5 4.6V18c3.3-.6 5.7-.3 7.5 1z"/><path fill="#0F766E" d="M12 5.5c1.8-1.3 4.2-1.5 7.5-1V18c-3.3-.6-5.7-.3-7.5 1z"/><path fill="#14B8A6" d="M11.1 7h.9v10.4h-.9z"/><path fill="#8B5E3C" d="M6.2 8.4h3.2v.5H6.2z"/><path fill="#F5EFDF" d="M6.2 10.6h3.2v.5H6.2z"/></svg>کتاب</span>
+        <span class="chip"><svg class="ico" viewBox="0 0 24 24"><path fill="#0F766E" d="M5 5h14v10.5H5z"/><path fill="#CCFBF1" d="M6.4 6.4h11.2v7.7H6.4z"/><path fill="#14B8A6" d="M8 8.4h7.6v1.4H8z"/><path fill="#14B8A6" d="M8 11h5v1.4H8z"/><path fill="#8B5E3C" d="M2.5 16.4h19l1 2.8H1.5z"/></svg>کار کنم</span>
+        <span class="chip"><svg class="ico" viewBox="0 0 24 24"><path fill="#8B5E3C" d="M9.2 10.6h5.6v2.8H9.2z"/><path fill="#0F766E" d="M4.5 8.2h3v7.6h-3zM16.5 8.2h3v7.6h-3z"/><path fill="#14B8A6" d="M6.8 6.6h1.8v10.8H6.8zM15.4 6.6h1.8v10.8h-1.8z"/></svg>ورزش</span>
+        <span class="chip"><svg class="ico" viewBox="0 0 24 24"><path fill="#0F766E" d="M15.6 3.2C9.4 4.6 7.2 10.4 10.6 14.6 13 17.6 17.4 17.8 20.4 14.6 17.6 19 10.4 20.2 6.6 16 2.8 11.8 4.2 5.6 9.6 3.4 11.4 2.6 13.6 2.6 15.6 3.2Z"/><path fill="#D4A017" d="M17.4 4.4l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/><path fill="#14B8A6" d="M6.6 6.4l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z"/></svg>خواب</span>
+      </div>
+      <div class="muted" style="margin-top:10px">مدت</div>
+      <div class="chiprow">
+        <span class="chip" style="padding:9px 14px">۱۵</span><span class="chip" style="padding:9px 14px">۲۵</span>
+        <span class="chip on" style="padding:9px 14px">۳۰ دقیقه</span><span class="chip" style="padding:9px 14px">۴۵</span><span class="chip" style="padding:9px 14px">۶۰</span>
+      </div>
+      <div class="btn">☕ بریز چای</div>
+    </div>
+    <div class="navbar">
+      <div class="tab on"><svg viewBox="0 0 24 24"><path d="M4 8h12a3 3 0 0 1 3 3v4a4 4 0 0 1-4 4H7a3 3 0 0 1-3-3V8Z"/><path d="M19 11h1.5a2.5 2.5 0 0 1 0 5H19"/><path d="M8 3v2M12 3v2"/></svg>چای</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>آمار</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2a2 2 0 0 1 0 4h-2M7 5H5a2 2 0 0 0 0 4h2"/></svg>لیگ</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>پروفایل</div>
+    </div>
+  </div>
+  <div class="cap">۱ — خانه (چای)</div></div>
+
+  <!-- ۲ جلسه -->
+  <div>
+  <div class="phone">
+    <div class="status"><span>۹:۵۸</span><span>●●●</span></div>
+    <div class="body" style="align-items:center;justify-content:center;text-align:center;min-height:600px">
+      <div class="muted">درس خواندن</div>
+      <div style="position:relative;margin:10px 0;width:170px;height:170px">
+        <svg viewBox="0 0 24 24" style="width:100%;height:100%">
+          <defs><clipPath id="cup1"><path d="M3 7 L17 7 L15.4 20.5 C13 21.6 7 21.6 4.6 20.5 Z"/></clipPath></defs>
+          <path fill="#F5EFDF" stroke="#8B5E3C" stroke-width=".8" d="M3 7 L17 7 L15.4 20.5 C13 21.6 7 21.6 4.6 20.5 Z"/>
+          <g clip-path="url(#cup1)"><rect x="2" y="12.5" width="16" height="9" fill="#8B5E3C"/></g>
+          <path fill="none" stroke="#8B5E3C" stroke-width=".9" d="M17 8.6 C20.7 8.6 21.1 13.6 17.5 14.5 L16.9 12.5 C18.6 12.3 18.8 10.4 16.8 10.6 Z"/>
+        </svg>
+        <!-- ناحیهٔ متن = دقیقاً محدودهٔ بدنهٔ لیوان؛ متن سفید با سایهٔ تیره تا روی هر دو بخش خوانا بماند -->
+        <div style="position:absolute;left:21px;right:50px;top:50px;bottom:21px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div class="big" style="font-size:23px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.45);letter-spacing:-.5px">۲۳:۴۱</div>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:4px">اپ‌های حواس‌پرت‌کن قفل شدند</div>
+      <div style="margin-top:14px;width:100%">
+        <div style="height:8px;background:var(--soft);border-radius:99px;overflow:hidden">
+          <div style="width:22%;height:100%;background:var(--primary)"></div></div>
+        <div class="muted" style="margin-top:6px">۶ دقیقه و ۱۹ ثانیه گذشته</div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:6px;align-items:center;background:var(--soft);border-radius:999px;padding:6px 12px;width:max-content">
+        <svg class="ico sm" viewBox="0 0 24 24"><path fill="#0F766E" d="M7.5 10.6h9v10h-9z"/><path fill="#14B8A6" d="M9.2 10.6V8a2.8 2.8 0 0 1 5.6 0v2.6h-2V8a1.4 1.4 0 0 0-2.8 0v2.6z"/><circle cx="12" cy="13.6" r="1.5" fill="#F5EFDF"/></svg>
+        <span class="muted" style="color:var(--primary)">تلگرام، اینستاگرام و یوتیوب قفل شدند</span>
+      </div>
+      <div class="muted" style="margin-top:auto;padding-top:16px">لغو جلسه (استریک می‌شکند)</div>
+    </div>
+  </div>
+  <div class="cap">۲ — جلسهٔ تمرکز (بدون تبلیغ، بدون نوار)</div></div>
+
+  <!-- ۳ بازدارنده -->
+  <div>
+  <div class="phone">
+    <div class="status" style="background:#2A1F18;color:#F5EFDF"><span>۹:۵۹</span><span>●●●</span></div>
+    <div class="lockbg">
+      <svg class="ico" style="width:64px;height:64px;filter:brightness(1.5)" viewBox="0 0 24 24"><path fill="#0F766E" d="M7.5 10.6h9v10h-9z"/><path fill="#14B8A6" d="M9.2 10.6V8a2.8 2.8 0 0 1 5.6 0v2.6h-2V8a1.4 1.4 0 0 0-2.8 0v2.6z"/><circle cx="12" cy="13.6" r="1.5" fill="#F5EFDF"/></svg>
+      <div style="font-size:20px;font-weight:900;margin-top:10px">حواس‌پرتی ممنوع!</div>
+      <div style="font-size:12.5px;opacity:.75;margin-top:6px">تلگرام در زمان تمرکز قفل است</div>
+      <div class="ring">۲۳:۴۱</div>
+      <div style="font-size:12.5px;opacity:.8">تا برگشت به تمرکز<br><b style="color:#D4A017">۲۳ دقیقه و ۴۱ ثانیه</b> دیگر وقت داری</div>
+      <div style="margin-top:22px;background:#0F766E;color:#fff;border-radius:16px;padding:13px 30px;font-weight:700">برگشت به تمرکز</div>
+    </div>
+  </div>
+  <div class="cap">۳ — صفحهٔ بازدارنده</div></div>
+
+  <!-- ۴ آمار -->
+  <div>
+  <div class="phone">
+    <div class="status"><span>۲۱:۱۰</span><span>●●●</span></div>
+    <div class="body">
+      <div class="title">داشبورد تمرکز</div>
+      <div class="statcard" style="margin-top:10px">
+        <div class="muted">امروز</div>
+        <div class="big" style="font-size:28px">۲ ساعت و ۱۵ دقیقه</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <span class="chip" style="padding:5px 10px"><svg class="ico sm" viewBox="0 0 24 24"><path fill="#F59E0B" d="M12 2.2C13.4 5.6 15.6 7 16.4 9.4 17.2 11.8 16 14.8 13.4 16.6 15 13.4 13.6 11.6 12.6 9.8 12.2 12.6 10.6 14 9.8 15.4 10.2 13 11 11 12 9.2 12.6 7.8 12.6 5.4 12 2.2Z"/></svg>۷ روز پیاپی</span>
+          <span class="chip" style="padding:5px 10px"><svg class="ico sm" viewBox="0 0 24 24"><path fill="#0F766E" d="M7.4 2.5H11l2.4 5.7-3.2 1z"/><path fill="#14B8A6" d="M13.2 2.5h3.6l-3 6.7-3.2-1z"/><circle cx="12" cy="9.4" r="6.2" fill="#D4A017"/><circle cx="12" cy="9.4" r="3.6" fill="#F5EFDF"/></svg>۱۲ نشان</span>
+        </div>
+      </div>
+      <div class="statcard" style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between"><b style="font-size:13px">این هفته</b><span class="muted">۹ ساعت</span></div>
+        <div class="bars">
+          <div class="bar" style="height:38%"><span>۱۲</span></div><div class="bar" style="height:55%"><span>۱۸</span></div>
+          <div class="bar" style="height:22%"><span>۷</span></div><div class="bar" style="height:70%"><span>۲۲</span></div>
+          <div class="bar on" style="height:88%"><span>۲۸</span></div><div class="bar" style="height:40%"><span>۱۲</span></div>
+          <div class="bar" style="height:15%"><span>۴</span></div>
+        </div>
+        <div class="days"><div>ش</div><div>ی</div><div>د</div><div>س</div><div>چ</div><div>پ</div><div>ج</div></div>
+      </div>
+      <div class="statcard" style="margin-top:10px">
+        <b style="font-size:13px">۵ هفتهٔ اخیر</b>
+        <div class="heat">
+          <i class="l2"></i><i class="l4"></i><i class="l3"></i><i class="l1"></i><i class="l4"></i><i class="l2"></i><i></i>
+          <i class="l3"></i><i class="l4"></i><i class="l4"></i><i class="l2"></i><i class="l3"></i><i></i><i class="l1"></i>
+          <i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><i class="l4"></i><i class="l2"></i><i></i>
+          <i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><i class="l3"></i><i class="l1"></i>
+          <i></i><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><i class="l2"></i><i></i>
+        </div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8h12a3 3 0 0 1 3 3v4a4 4 0 0 1-4 4H7a3 3 0 0 1-3-3V8Z"/><path d="M19 11h1.5a2.5 2.5 0 0 1 0 5H19"/><path d="M8 3v2M12 3v2"/></svg>چای</div>
+      <div class="tab on"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>آمار</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2a2 2 0 0 1 0 4h-2M7 5H5a2 2 0 0 0 0 4h2"/></svg>لیگ</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>پروفایل</div>
+    </div>
+  </div>
+  <div class="cap">۴ — آمار</div></div>
+
+  <!-- ۵ لیگ -->
+  <div>
+  <div class="phone">
+    <div class="status"><span>۲۱:۱۲</span><span>●●●</span></div>
+    <div class="body">
+      <div class="title">لیگ هفتگی</div>
+      <div class="muted">لیگ نقره — ۲ ساعت تا ارتقا به طلا</div>
+      <div style="height:8px;background:var(--soft);border-radius:99px;margin-top:8px;overflow:hidden">
+        <div style="width:62%;height:100%;background:var(--gold2)"></div></div>
+      <div class="statcard" style="margin-top:12px;padding:4px 12px">
+        <div class="rowitem" style="border:0"><span class="rank">۱</span><span class="av"><img src="/img/av1.webp"></span>
+          <div style="flex:1"><b style="font-size:13px">آرمان</b><div class="muted" style="font-size:10.5px">۱۲ ساعت · ۹ روز</div></div><b style="color:var(--gold2)">۱۲۴۰</b></div>
+        <div class="rowitem" style="border:0"><span class="rank">۲</span><span class="av"><img src="/img/av2.webp"></span>
+          <div style="flex:1"><b style="font-size:13px">سارا</b><div class="muted" style="font-size:10.5px">۱۰ ساعت · ۶ روز</div></div><b>۱۰۹۰</b></div>
+        <div class="rowitem" style="border:0"><span class="rank">۳</span><span class="av"><img src="/img/av3.webp"></span>
+          <div style="flex:1"><b style="font-size:13px">کاوه</b><div class="muted" style="font-size:10.5px">۹ ساعت · ۵ روز</div></div><b>۹۸۰</b></div>
+      </div>
+      <div class="me" style="margin-top:10px"><div class="rowitem" style="border:0"><span class="rank">۷</span><span class="av"><img src="/img/av4.webp"></span>
+        <div style="flex:1"><b style="font-size:13px">تو</b><div class="muted" style="font-size:10.5px">۷ ساعت · ۷ روز</div></div><b style="color:var(--primary)">۸۴۰</b></div></div>
+      <div class="btn gold" style="font-size:14px">⚔️ چالش دوئل با دوستت</div>
+      <div class="btn ghost" style="font-size:13px">🎯 چالش روزانه: ۳۰ دقیقه</div>
+    </div>
+    <div class="navbar">
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8h12a3 3 0 0 1 3 3v4a4 4 0 0 1-4 4H7a3 3 0 0 1-3-3V8Z"/><path d="M19 11h1.5a2.5 2.5 0 0 1 0 5H19"/><path d="M8 3v2M12 3v2"/></svg>چای</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>آمار</div>
+      <div class="tab on"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2a2 2 0 0 1 0 4h-2M7 5H5a2 2 0 0 0 0 4h2"/></svg>لیگ</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>پروفایل</div>
+    </div>
+  </div>
+  <div class="cap">۵ — لیگ (آواتارها AI)</div></div>
+
+  <!-- ۶ پروفایل -->
+  <div>
+  <div class="phone">
+    <div class="status"><span>۲۱:۱۵</span><span>●●●</span></div>
+    <div class="body">
+      <div style="text-align:center;margin-top:4px">
+        <div style="width:88px;height:88px;border-radius:50%;background:var(--milk);display:flex;align-items:center;justify-content:center;margin:0 auto">
+          <svg class="ico" style="width:60px;height:60px" viewBox="0 0 24 24"><path fill="#F5EFDF" stroke="#8B5E3C" stroke-width="1.2" d="M4 6.5 L16 6.5 L14.6 19.4 C12.6 20.4 7.4 20.4 5.4 19.4 Z"/><path fill="#8B5E3C" d="M4.9 11.5 L15.1 11.5 L14.2 19 C12.4 19.8 7.6 19.8 5.8 19 Z"/><path fill="none" stroke="#8B5E3C" stroke-width="1.4" d="M16 8 C19.4 8 19.8 12.6 16.4 13.4 L15.9 11.6 C17.4 11.4 17.6 9.6 15.7 9.8 Z"/></svg>
+        </div>
+        <div class="title" style="margin-top:8px">تو</div>
+        <div class="muted">@username · عضو نقره</div>
+        <div style="margin-top:8px"><span class="chip"><svg class="ico sm" viewBox="0 0 24 24"><path fill="#0F766E" d="M20.4 3.4C13.6 3 7.4 4.6 5.2 8.8 3.6 11.8 4.8 15.4 7.8 16.6 8.8 17 10 17 11.2 16.8 13.8 19 17.6 18.6 19.4 15.6 21 12.8 20.8 8.4 20.4 3.4Z"/><path fill="#14B8A6" d="M19.6 4.6C14.6 5 10.2 6.8 8.6 10 7.6 12 8.4 14.4 10.4 15.2 11.2 15.5 12.2 15.4 13.2 15 15.4 16.6 18.2 16 19.4 13.6 20.4 11.8 20.2 8.4 19.6 4.6Z"/></svg>تغییر آواتار</span></div>
+        <div style="margin-top:8px"><span class="chip" style="background:var(--primary-soft);color:var(--primary);border-color:var(--soft)">
+          <svg class="ico sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="#0F766E" stroke-width="1.8"/><path d="M12 2.6v3M12 18.4v3M2.6 12h3M18.4 12h3M5.4 5.4l2.1 2.1M16.5 16.5l2.1 2.1M18.6 5.4l-2.1 2.1M7.5 16.5l-2.1 2.1" stroke="#0F766E" stroke-width="1.8" stroke-linecap="round"/></svg>
+          تنظیمات</span></div>
+      </div>
+      <div class="statcard" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-around;text-align:center">
+          <div><div class="big" style="font-size:22px">۴۷</div><div class="muted">ساعت کل</div></div>
+          <div><div class="big" style="font-size:22px">۱۲۸</div><div class="muted">جلسه</div></div>
+          <div><div class="big" style="font-size:22px">۷</div><div class="muted">بهترین استریک</div></div>
+        </div>
+      </div>
+      <div class="statcard" style="margin-top:10px">
+        <b style="font-size:13px">کد بازیابی</b>
+        <div class="muted" style="margin-top:4px">کد رو ذخیره کرده‌ای. اگر گم شد، با همین نام کاربری و کد وارد شو.</div>
+        <div class="chiprow"><span class="chip" style="letter-spacing:1px">X7K3-M9QX-2P4D</span></div>
+      </div>
+      <div class="btn ghost" style="font-size:13px">🔄 بازیابی کد جدید</div>
+    </div>
+    <div class="navbar">
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8h12a3 3 0 0 1 3 3v4a4 4 0 0 1-4 4H7a3 3 0 0 1-3-3V8Z"/><path d="M19 11h1.5a2.5 2.5 0 0 1 0 5H19"/><path d="M8 3v2M12 3v2"/></svg>چای</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>آمار</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2a2 2 0 0 1 0 4h-2M7 5H5a2 2 0 0 0 0 4h2"/></svg>لیگ</div>
+      <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>پروفایل</div>
+    </div>
+  </div>
+  <div class="cap">۶ — پروفایل</div></div>
+
+  <!-- ۷ تنظیمات -->
+  <div>
+  <div class="phone">
+    <div class="status"><span>۲۱:۱۸</span><span>●●●</span></div>
+    <div class="body">
+      <div style="display:flex;align-items:center;gap:8px">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="#0F766E" stroke-width="1.8"/><path d="M12 2.6v3M12 18.4v3M2.6 12h3M18.4 12h3M5.4 5.4l2.1 2.1M16.5 16.5l2.1 2.1M18.6 5.4l-2.1 2.1M7.5 16.5l-2.1 2.1" stroke="#0F766E" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="title">تنظیمات</div>
+      </div>
+
+      <div class="statcard" style="margin-top:12px">
+        <b style="font-size:13px">ظاهر برنامه</b>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <span class="chip on" style="padding:8px 14px">☀️ روشن</span>
+          <span class="chip" style="padding:8px 14px">🌙 تیره</span>
+          <span class="chip" style="padding:8px 14px">🌗 سیستم</span>
+        </div>
+        <div class="muted" style="margin-top:8px">رنگ‌ها و ماگ چای با تم هماهنگ می‌شوند</div>
+      </div>
+
+      <div class="statcard" style="margin-top:10px">
+        <b style="font-size:13px">تمرکز</b>
+        <div class="rowitem" style="border:0;padding-bottom:2px">
+          <div style="flex:1"><b style="font-size:13px">مدت پیش‌فرض</b><div class="muted" style="font-size:11px">هر جلسه چند دقیقه؟</div></div>
+          <span class="chip">۳۰ دقیقه</span>
+        </div>
+        <div class="rowitem" style="border:0;padding-bottom:2px">
+          <div style="flex:1"><b style="font-size:13px">یادآور پایان جلسه</b><div class="muted" style="font-size:11px">صدا و لرزش</div></div>
+          <span class="chip on" style="background:var(--primary);color:#fff;border-color:var(--primary)">روشن</span>
+        </div>
+        <div class="rowitem" style="border:0">
+          <div style="flex:1"><b style="font-size:13px">هشدار روزانه</b><div class="muted" style="font-size:11px">یادآوری شروع تمرکز</div></div>
+          <span class="chip">۸:۰۰</span>
+        </div>
+      </div>
+
+      <div class="statcard" style="margin-top:10px">
+        <b style="font-size:13px">دربارهٔ سازنده</b>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--primary-soft);display:flex;align-items:center;justify-content:center;font-size:20px">👨‍💻</div>
+          <div>
+            <b style="font-size:14px">ابوالفضل صمدی</b>
+            <div class="muted" style="font-size:11.5px">اهل تهران · متولد ۱۳۹۲</div>
+          </div>
+        </div>
+        <div class="muted" style="margin-top:8px;line-height:1.8">سازندهٔ «چای» — اپ تمرکز برای فارسی‌زبانان.<br>نسخهٔ ۱.۰ · ساخته‌شده با ❤️ برای وقت‌هایی که گوشی رها می‌شود.</div>
+      </div>
+
+      <div class="statcard" style="margin-top:10px;padding:12px 14px">
+        <div class="rowitem" style="border:0"><div style="flex:1"><b style="font-size:13px">پشتیبانی</b></div><span class="muted">›</span></div>
+        <div class="rowitem" style="border:0"><div style="flex:1"><b style="font-size:13px">قوانین و حریم خصوصی</b></div><span class="muted">›</span></div>
+        <div class="rowitem" style="border:0"><div style="flex:1"><b style="font-size:13px">نسخهٔ ۱.۰ (۱)</b></div></div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 8h12a3 3 0 0 1 3 3v4a4 4 0 0 1-4 4H7a3 3 0 0 1-3-3V8Z"/><path d="M19 11h1.5a2.5 2.5 0 0 1 0 5H19"/><path d="M8 3v2M12 3v2"/></svg>چای</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>آمار</div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2a2 2 0 0 1 0 4h-2M7 5H5a2 2 0 0 0 0 4h2"/></svg>لیگ</div>
+      <div class="tab on"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>پروفایل</div>
+    </div>
+  </div>
+  <div class="cap">۷ — تنظیمات (داخل تب پروفایل)</div></div>
+</div>
+
+<div class="note" style="margin-top:22px">
+  <b>نکات فنی:</b><br>
+  • ۱۱ آیکون **وکتور اختصاصی** (VectorDrawable) — کل ۸ کیلوبایت، بی‌نهایت شارپ، بدون آرتیفکت<br>
+  • ۴ آواتار AI (۳۷KB) + پس‌زمینهٔ شفاف (colorkey)<br>
+  • فونت Vazirmatn داخل اپ bundle شده — بدون اینترنت<br>
+  • نوار پایین ۴ تب مثل اینستا؛ در صفحهٔ جلسه و بازدارنده **نیست**<br>
+  • ماگ چای با Canvas کشیده می‌شه (انیمیشن پر شدن، بدون تصویر)
+</div>
+</body>
+</html>

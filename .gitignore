@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+local.properties
+captures/
+*.apk
+*.aab
+*.keystore
+*.jks
+release.jks
+
+# Android
+*.iml
+.idea/
+.externalNativeBuild/
+.cxx/
+
+# Secrets — هرگز commit نشوند
+secrets.json
+supabase-pat.txt
+db-password.txt
+*.env
+.env
+
+# Node (ابزارهای کمکی)
+node_modules/
+package-lock.json
+package.json
+
+# Supabase CLI
+supabase/.temp/
+
+# سیستم‌عامل
+.DS_Store
+Thumbs.db
+desktop.ini

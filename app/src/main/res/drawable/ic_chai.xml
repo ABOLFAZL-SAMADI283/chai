@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- ماگ چای -->
+    <path
+        android:fillColor="#F5F0E6"
+        android:pathData="M30,38 L62,38 L58,74 Q46,80 34,74 Z" />
+    <path
+        android:fillColor="#8B5E3C"
+        android:pathData="M32,50 L60,50 L57,73 Q46,78 35,73 Z" />
+    <path
+        android:strokeColor="#F5F0E6"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"
+        android:pathData="M62,44 Q74,44 72,54 Q70,63 59,61" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.55"
+        android:pathData="M42,26 Q46,20 42,14 M52,26 Q56,20 52,14" />
+</vector>
