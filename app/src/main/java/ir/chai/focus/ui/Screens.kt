@@ -41,7 +41,12 @@ import ir.chai.focus.TimeFmt
 /* ═══════════════════════ آمار ═══════════════════════ */
 
 @Composable
-fun StatsScreen(sessions: List<FocusSession>, modifier: Modifier = Modifier) {
+fun StatsScreen(
+    sessions: List<FocusSession>,
+    todayVisits: Int = 0,
+    totalVisits: Int = 0,
+    modifier: Modifier = Modifier
+) {
     val today = Stats.todaySeconds(sessions)
     val week = Stats.last7Days(sessions)
     val streak = Stats.streakDays(sessions)
@@ -79,6 +84,25 @@ fun StatsScreen(sessions: List<FocusSession>, modifier: Modifier = Modifier) {
                     "$streak روز پیاپی · ${sessions.count { it.completed }} جلسهٔ کامل",
                     style = MaterialTheme.typography.bodySmall,
                     color = Chai.Text2
+                )
+            }
+        }
+        item {
+            // بازدیدها (شمارش نرم)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatCard(
+                    title = "بازدید امروز",
+                    value = "$todayVisits",
+                    modifier = Modifier.weight(1f),
+                    accent = Chai.Primary,
+                    animatedValue = todayVisits
+                )
+                StatCard(
+                    title = "کل بازدید",
+                    value = "$totalVisits",
+                    modifier = Modifier.weight(1f),
+                    accent = Chai.Tea,
+                    animatedValue = totalVisits
                 )
             }
         }

@@ -3,11 +3,6 @@ name: Android Build
 on:
   push:
     branches: [ main, master ]
-    paths:
-      - 'app/**'
-      - '*.gradle.kts'
-      - 'gradle.properties'
-      - '.github/workflows/android.yml'
   workflow_dispatch:
 
 jobs:
@@ -22,27 +17,38 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      # چون gradle-wrapper داخل ریپو نیست، خود Gradle را نصب می‌کنیم
+      - name: Install Gradle
+        run: |
+          curl -sL https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /opt
+          echo "/opt/gradle-8.9/bin" >> $GITHUB_PATH
+          gradle --version
 
-      - name: Build APK (debug)
-        run: ./gradlew assembleDebug
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: gradle-
 
-      - name: Upload APK
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: chai-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          retention-days: 30
 
-      - name: Build release (unsigned) — نیازمند keystore
+      # ── ساخت نسخهٔ ریلیز فقط اگر keystore اضافه شده باشد ──
+      - name: Build release APK
         if: ${{ secrets.KEYSTORE_BASE64 != '' }}
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.jks
-          ./gradlew assembleRelease
-          echo "TAPSELL_APP_KEY=${{ secrets.TAPSELL_APP_KEY }}" >> gradle.properties
-          echo "TAPSELL_ZONE_BANNER=${{ secrets.TAPSELL_ZONE_BANNER }}" >> gradle.properties
-          echo "TAPSELL_ZONE_INTERSTITIAL=${{ secrets.TAPSELL_ZONE_INTERSTITIAL }}" >> gradle.properties
-          echo "TAPSELL_ZONE_REWARDED=${{ secrets.TAPSELL_ZONE_REWARDED }}" >> gradle.properties
+          gradle assembleRelease --no-daemon
+          echo "TAPSELL_APP_KEY=${{ secrets.TAPSELL_APP_KEY }}" >> gradle.properties || true
 
       - name: Upload release APK
         if: ${{ secrets.KEYSTORE_BASE64 != '' }}
@@ -50,3 +56,4 @@ jobs:
         with:
           name: chai-release-apk
           path: app/build/outputs/apk/release/*.apk
+          retention-days: 30

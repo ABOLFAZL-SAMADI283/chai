@@ -156,7 +156,8 @@ fun StatCard(
     title: String,
     value: String,
     modifier: Modifier = Modifier,
-    accent: Color = Chai.Text
+    accent: Color = Chai.Text,
+    animatedValue: Int? = null
 ) {
     Column(
         modifier = modifier
@@ -166,11 +167,19 @@ fun StatCard(
     ) {
         Text(title, style = MaterialTheme.typography.bodySmall, color = Chai.Text2)
         Spacer(Modifier.height(4.dp))
-        Text(
-            value,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Black,
-            color = accent
-        )
+        if (animatedValue != null) {
+            AnimatedNumber(
+                value = animatedValue,
+                style = MaterialTheme.typography.headlineSmall,
+                color = accent
+            )
+        } else {
+            Text(
+                value,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Black,
+                color = accent
+            )
+        }
     }
 }

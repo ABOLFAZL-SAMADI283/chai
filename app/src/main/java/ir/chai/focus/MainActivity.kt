@@ -4,6 +4,19 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -37,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +62,9 @@ import ir.chai.focus.ui.ChaiBottomBar
 import ir.chai.focus.ui.ChaiTab
 import ir.chai.focus.ui.ChaiTheme
 import ir.chai.focus.ui.ChaiSplashScreen
+import ir.chai.focus.ui.ChaiSpring
+import ir.chai.focus.ui.ChaiFadeIn
+import ir.chai.focus.ui.ChaiFadeOut
 import ir.chai.focus.ui.SettingsScreen
 import ir.chai.focus.ui.ThemeMode
 import kotlinx.coroutines.delay
@@ -149,40 +166,50 @@ fun ChaiApp(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            when (tab) {
-                ChaiTab.CHAI -> HomeScreen(
-                    defaultMinutes = defaultMinutes,
-                    activeNow = activeCount,
-                    todayOpens = todayOpens,
-                    onStart = { goal, minutes ->
-                        session = ActiveSession(goal = goal, totalSec = minutes * 60)
-                    }
-                )
-                ChaiTab.PROFILE -> if (settingsOpen) {
-                    SettingsScreen(
-                        themeMode = themeMode,
-                        onThemeChange = onThemeChange,
+            // انتقال انیمیشنی بین تب‌ها (محو + لغزش)
+            AnimatedContent(
+                targetState = tab,
+                transitionSpec = {
+                    (fadeIn(ChaiFadeIn) + slideInHorizontally { it / 24 }) togetherWith
+                        (fadeOut(ChaiFadeOut) + slideOutHorizontally { -it / 24 })
+                },
+                label = "tabContent"
+            ) { t ->
+                when (t) {
+                    ChaiTab.CHAI -> HomeScreen(
                         defaultMinutes = defaultMinutes,
-                        onDefaultMinutes = { defaultMinutes = it },
-                        onBack = { settingsOpen = false }
+                        activeNow = activeCount,
+                        todayOpens = todayOpens,
+                        onStart = { goal, minutes ->
+                            session = ActiveSession(goal = goal, totalSec = minutes * 60)
+                        }
                     )
-                } else {
-                    ProfileScreen(
-                        nickname = "",
-                        username = "",
-                        totalMinutes = 0,
-                        sessionCount = 0,
-                        bestStreak = 0,
-                        onOpenSettings = { settingsOpen = true },
-                        onLogout = {}
-                    )
-                }
-                else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        if (tab == ChaiTab.STATS) "آمار — در حال ساخت" else "لیگ — در حال ساخت",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Chai.Text2
-                    )
+                    ChaiTab.PROFILE -> if (settingsOpen) {
+                        SettingsScreen(
+                            themeMode = themeMode,
+                            onThemeChange = onThemeChange,
+                            defaultMinutes = defaultMinutes,
+                            onDefaultMinutes = { defaultMinutes = it },
+                            onBack = { settingsOpen = false }
+                        )
+                    } else {
+                        ProfileScreen(
+                            nickname = "",
+                            username = "",
+                            totalMinutes = 0,
+                            sessionCount = 0,
+                            bestStreak = 0,
+                            onOpenSettings = { settingsOpen = true },
+                            onLogout = {}
+                        )
+                    }
+                    else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            if (t == ChaiTab.STATS) "آمار — در حال ساخت" else "لیگ — در حال ساخت",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Chai.Text2
+                        )
+                    }
                 }
             }
         }
@@ -254,6 +281,17 @@ fun HomeScreen(
             }
 
             Spacer(Modifier.height(14.dp))
+            // ماگ چای با تنفّس ملایم (نشانهٔ زنده‌بودن صفحه)
+            val breathe = rememberInfiniteTransition(label = "breathe")
+            val pulse by breathe.animateFloat(
+                initialValue = 1f,
+                targetValue = 1.035f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(2200),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "pulse"
+            )
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -261,7 +299,12 @@ fun HomeScreen(
                 androidx.compose.foundation.Image(
                     painter = painterResource(R.drawable.ic_chai_cup),
                     contentDescription = null,
-                    modifier = Modifier.size(150.dp)
+                    modifier = Modifier
+                        .size(150.dp)
+                        .graphicsLayer {
+                            scaleX = pulse
+                            scaleY = pulse
+                        }
                 )
             }
             Text(
@@ -327,12 +370,28 @@ fun GoalIcon(goal: Goal) {
 
 @Composable
 fun GoalChip(goal: Goal, selected: Boolean, onClick: () -> Unit) {
+    val bg by animateColorAsState(
+        targetValue = if (selected) Chai.Primary else Chai.Surface,
+        animationSpec = tween(240),
+        label = "chipBg"
+    )
+    val fg by animateColorAsState(
+        targetValue = if (selected) Color.White else Chai.Text,
+        animationSpec = tween(240),
+        label = "chipFg"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (selected) 1.04f else 1f,
+        animationSpec = ChaiSpring,
+        label = "chipScale"
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(7.dp),
         modifier = Modifier
+            .scale(scale)
             .clip(RoundedCornerShape(999.dp))
-            .background(if (selected) Chai.Primary else Chai.Surface)
+            .background(bg)
             .clickable { onClick() }
             .padding(6.dp)
     ) {
@@ -347,22 +406,41 @@ fun GoalChip(goal: Goal, selected: Boolean, onClick: () -> Unit) {
                 }
             ),
             contentDescription = null,
-            modifier = Modifier.size(26.dp).clip(RoundedCornerShape(13.dp))
+            modifier = Modifier
+                .size(26.dp)
+                .clip(RoundedCornerShape(13.dp))
+                .graphicsLayer { alpha = if (selected) 1f else 0.85f }
         )
         Text(
             goal.label,
             style = MaterialTheme.typography.labelMedium,
-            color = if (selected) Color.White else Chai.Text
+            color = fg
         )
     }
 }
 
 @Composable
 fun DurationPill(minutes: Int, selected: Boolean, onClick: () -> Unit) {
+    val bg by animateColorAsState(
+        targetValue = if (selected) Chai.Primary else Chai.Surface,
+        animationSpec = tween(220),
+        label = "pillBg"
+    )
+    val fg by animateColorAsState(
+        targetValue = if (selected) Color.White else Chai.Text,
+        animationSpec = tween(220),
+        label = "pillFg"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (selected) 1.06f else 1f,
+        animationSpec = ChaiSpring,
+        label = "pillScale"
+    )
     Box(
         modifier = Modifier
+            .scale(scale)
             .clip(RoundedCornerShape(999.dp))
-            .background(if (selected) Chai.Primary else Chai.Surface)
+            .background(bg)
             .clickable { onClick() }
             .padding(horizontal = 14.dp, vertical = 9.dp)
     ) {
@@ -370,7 +448,7 @@ fun DurationPill(minutes: Int, selected: Boolean, onClick: () -> Unit) {
             if (minutes == 30) "۳۰ دقیقه" else minutes.toString(),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            color = if (selected) Color.White else Chai.Text
+            color = fg
         )
     }
 }
