@@ -43,12 +43,13 @@ class NetMonitor(context: Context) {
                 caps: NetworkCapabilities
             ) = onChange(isOnline())
         }
+        val stop: () -> Unit = {
+            runCatching { c.unregisterNetworkCallback(cb) }
+            Unit
+        }
         return try {
             c.registerDefaultNetworkCallback(cb)
-            {
-                runCatching { c.unregisterNetworkCallback(cb) }
-                Unit
-            }
+            stop
         } catch (e: Exception) {
             { }
         }
