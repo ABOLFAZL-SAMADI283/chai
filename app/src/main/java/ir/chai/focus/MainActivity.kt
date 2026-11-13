@@ -1,5 +1,6 @@
 package ir.chai.focus
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -74,7 +75,6 @@ import ir.chai.focus.ui.ChaiSpring
 import ir.chai.focus.ui.ChaiFadeIn
 import ir.chai.focus.ui.ChaiFadeOut
 import ir.chai.focus.ui.BlockedAppsScreen
-import ir.chai.focus.ui.LeagueRow
 import ir.chai.focus.ui.LegalKind
 import ir.chai.focus.ui.LegalScreen
 import ir.chai.focus.ui.OfflineNotice

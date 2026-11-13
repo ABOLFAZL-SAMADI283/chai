@@ -45,7 +45,10 @@ class NetMonitor(context: Context) {
         }
         return try {
             c.registerDefaultNetworkCallback(cb)
-            { runCatching { c.unregisterNetworkCallback(cb) } }
+            {
+                runCatching { c.unregisterNetworkCallback(cb) }
+                Unit
+            }
         } catch (e: Exception) {
             { }
         }

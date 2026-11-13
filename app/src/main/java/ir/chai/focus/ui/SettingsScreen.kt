@@ -160,7 +160,7 @@ fun SettingsScreen(
                 )
                 if (reminderOn) {
                     Spacer(Modifier.height(8.dp))
-                    SmallChip("تغییر ساعت یادآور") { showTimePicker = true }
+                    SmallChip("تغییر ساعت یادآور", selected = false) { showTimePicker = true }
                 }
                 Spacer(Modifier.height(10.dp))
                 MenuRow(
@@ -227,8 +227,8 @@ fun SettingsScreen(
         // ── سایر ──
         item {
             ChaiCard {
-                MenuRow("قوانین و مقررات", "شرایط استفاده از سرویس") { onOpenLegal(LegalKind.TERMS) }
-                MenuRow("سیاست حریم خصوصی", "چه داده‌ای جمع می‌کنیم") { onOpenLegal(LegalKind.PRIVACY) }
+                MenuRow("قوانین و مقررات", "شرایط استفاده از سرویس", onClick = { onOpenLegal(LegalKind.TERMS) })
+                MenuRow("سیاست حریم خصوصی", "چه داده‌ای جمع می‌کنیم", onClick = { onOpenLegal(LegalKind.PRIVACY) })
                 MenuRow("نسخهٔ برنامه", versionName, onClick = {})
             }
         }

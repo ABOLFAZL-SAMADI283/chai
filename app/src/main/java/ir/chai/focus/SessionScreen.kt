@@ -439,7 +439,7 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
                 moveTo(w * 0.54f, top - h * 0.04f)
                 quadraticTo(w * 0.60f, top - h * 0.12f, w * 0.54f, top - h * 0.18f)
             }
-            drawPath(steam, color = steamColor.copy(alpha = 0.75f), style = Stroke(width = w * 0.016f))
+            drawPath(p1, color = steamColor.copy(alpha = 0.75f), style = Stroke(width = w * 0.016f))
 
             // حلقهٔ پیشرفت دور ماگ
             val ringR = w * 0.44f
