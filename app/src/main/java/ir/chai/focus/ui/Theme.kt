@@ -20,6 +20,7 @@ object Chai {
     val Bg = Color(0xFFFBF7F0)          // کرم کاغذی
     val Surface = Color(0xFFFFFFFF)
     val Primary = Color(0xFF0F766E)      // سبز چای
+    val Teal = Color(0xFF0F766E)         // سبز چای — برای متن برند (روشن و تیره)
     val Primary2 = Color(0xFF14B8A6)     // سبز روشن
     val Soft = Color(0xFFCCFBF1)         // پس‌زمینهٔ کاشی
     val Tea = Color(0xFF8B5E3C)          // قهوهٔ چای

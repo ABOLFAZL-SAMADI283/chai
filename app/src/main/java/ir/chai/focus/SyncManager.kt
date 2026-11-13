@@ -27,7 +27,8 @@ class SyncManager(private val store: SessionStore, private val repo: AuthReposit
         pending.forEach { s ->
             arr.put(
                 JSONObject().apply {
-                    put("id", s.id)
+                    // کلید یکتای سمت کلاینت (سرور user_id را خودش می‌گذارد)
+                    put("client_id", s.id)
                     put("goal", s.goal)
                     put("planned_sec", s.plannedSec)
                     put("actual_sec", s.actualSec)

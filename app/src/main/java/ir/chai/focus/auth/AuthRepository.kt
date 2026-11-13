@@ -29,6 +29,7 @@ class AuthRepository(private val context: Context) {
     val username: String get() = prefs.getString("username", "") ?: ""
     val nickname: String get() = prefs.getString("nickname", "") ?: ""
     val avatar: String get() = prefs.getString("avatar", "☕") ?: "☕"
+    val userId: String get() = prefs.getString("user_id", "") ?: ""
 
     fun saveConfig(url: String, anon: String) {
         prefs.edit().putString("supabase_url", url).putString("supabase_anon_key", anon).apply()
@@ -128,12 +129,78 @@ class AuthRepository(private val context: Context) {
     /** ارسال سشن‌های محلی (کش آفلاین) به دیتابیس */
     suspend fun syncSessions(sessions: JSONArray): Result<Int> = withContext(Dispatchers.IO) {
         try {
-            val res = request("rest/v1/sessions", "POST", sessions.toString(), authed = true)
-            if (res.first) Result.success(sessions.length()) else Result.failure(Exception(res.second))
+            val res = request(
+                "rest/v1/sessions", "POST", sessions.toString(), authed = true,
+                extraHeaders = mapOf("Prefer" to "resolution=ignore-duplicates")
+            )
+            // ۴۰۹ = این سشن قبلاً فرستاده شده → عملاً موفق
+            if (res.first || res.second.contains("23505")) Result.success(sessions.length())
+            else Result.failure(Exception(res.second))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
+
+    /** جدول لیگ هفتگی (RPC) */
+    suspend fun league(): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val res = request("rest/v1/rpc/weekly_league", "POST", "{}", authed = true)
+            if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /** دوئل‌های من */
+    suspend fun myDuels(): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val res = request("rest/v1/rpc/my_duels", "POST", "{}", authed = true)
+            if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /** ساخت دوئل با نام کاربر یا نام نمایشی */
+    suspend fun createDuel(guestName: String, minutes: Int): Result<String> =
+        withContext(Dispatchers.IO) {
+            try {
+                val body = JSONObject()
+                    .put("p_guest", guestName)
+                    .put("p_duration_min", minutes)
+                    .toString()
+                val res = request("rest/v1/rpc/create_duel", "POST", body, authed = true)
+                if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+    /** چالش روزانه */
+    suspend fun dailyChallenge(): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val res = request("rest/v1/rpc/daily_challenge", "POST", "{}", authed = false)
+            if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /** شرکت در چالش روزانه — تعداد شرکت‌کنندگان را برمی‌گرداند */
+    suspend fun joinDailyChallenge(goal: String, minutes: Int): Result<Int> =
+        withContext(Dispatchers.IO) {
+            try {
+                val body = JSONObject()
+                    .put("p_goal", goal)
+                    .put("p_minutes", minutes)
+                    .toString()
+                val res = request("rest/v1/rpc/join_daily_challenge", "POST", body, authed = true)
+                if (res.first) Result.success(res.second.trim().toIntOrNull() ?: 0)
+                else Result.failure(Exception(res.second))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
 
     /**
      * مسیر واقعی تابع Edge.
@@ -216,26 +283,39 @@ class AuthRepository(private val context: Context) {
         return Result.failure(Exception(msg))
     }
 
-    private fun request(path: String, method: String, body: String, authed: Boolean): Pair<Boolean, String> {
+    private fun request(
+        path: String,
+        method: String,
+        body: String,
+        authed: Boolean,
+        extraHeaders: Map<String, String> = emptyMap()
+    ): Pair<Boolean, String> {
         if (baseUrl.isBlank()) return false to """{"error":"سرور تنظیم نشده"}"""
-        val conn = URL("$baseUrl/$path").openConnection() as HttpURLConnection
-        conn.requestMethod = method
-        conn.doOutput = true
-        conn.connectTimeout = 15000
-        conn.readTimeout = 20000
-        conn.setRequestProperty("Content-Type", "application/json")
-        conn.setRequestProperty("apikey", anonKey)
-        if (authed) {
-            val token = prefs.getString("access_token", "") ?: ""
-            if (token.isBlank()) return false to """{"error":"وارد نشده‌اید"}"""
-            conn.setRequestProperty("Authorization", "Bearer $token")
-        }
-        conn.outputStream.use { it.write(body.toByteArray()) }
+        return try {
+            val conn = URL("$baseUrl/$path").openConnection() as HttpURLConnection
+            conn.requestMethod = method
+            conn.connectTimeout = 15000
+            conn.readTimeout = 20000
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.setRequestProperty("apikey", anonKey)
+            extraHeaders.forEach { (k, v) -> conn.setRequestProperty(k, v) }
+            if (authed) {
+                val token = prefs.getString("access_token", "") ?: ""
+                if (token.isBlank()) return false to """{"error":"وارد نشده‌اید"}"""
+                conn.setRequestProperty("Authorization", "Bearer $token")
+            }
+            if (method != "GET" && method != "HEAD") {
+                conn.doOutput = true
+                conn.outputStream.use { it.write(body.toByteArray()) }
+            }
 
-        val code = conn.responseCode
-        val stream = if (code in 200..299) conn.inputStream else conn.errorStream
-        val text = stream?.bufferedReader()?.use(BufferedReader::readText) ?: ""
-        return (code in 200..299) to text
+            val code = conn.responseCode
+            val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+            val text = stream?.bufferedReader()?.use(BufferedReader::readText) ?: ""
+            (code in 200..299) to text
+        } catch (e: Exception) {
+            false to """{"error":"ارتباط با سرور برقرار نشد"}"""
+        }
     }
 }
 
