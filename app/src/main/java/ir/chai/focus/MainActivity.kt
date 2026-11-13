@@ -299,8 +299,10 @@ fun ChaiApp(
                 ).also { sessions = it }
                 session = null
                 if (online && repo.isLoggedIn) {
-                    scope.launch { sync.pushPending() }
-                    refreshLeague()
+                    scope.launch {
+                        sync.pushPending()
+                        refreshLeague()
+                    }
                 }
             }
         )
@@ -367,7 +369,10 @@ fun ChaiApp(
                             } else {
                                 scope.launch {
                                     repo.createDuel(name, minutes)
-                                        .onSuccess { toast = "✅ دوئل ساخته شد"; refreshLeague() }
+                                        .onSuccess {
+                                            toast = "✅ دوئل ساخته شد"
+                                            scope.launch { refreshLeague() }
+                                        }
                                         .onFailure { toast = it.message ?: "خطا" }
                                 }
                             }
@@ -380,7 +385,7 @@ fun ChaiApp(
                                     repo.joinDailyChallenge("study", 30)
                                         .onSuccess { n ->
                                             toast = "🎯 ثبت شد — $n نفر امروز شرکت کردند"
-                                            refreshLeague()
+                                            scope.launch { refreshLeague() }
                                         }
                                         .onFailure { toast = it.message ?: "خطا" }
                                 }
