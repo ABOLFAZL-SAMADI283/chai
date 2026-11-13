@@ -221,7 +221,7 @@ fun ChaiApp(
     }
 
     // ── لیگ و دوئل و چالش ──
-    fun refreshLeague() {
+    suspend fun refreshLeague() {
         if (!online) return
         repo.league().onSuccess { json ->
             leagueRows = LeagueParser.parseLeague(json, repo.userId)
@@ -250,8 +250,10 @@ fun ChaiApp(
             onLoggedIn = { u ->
                 showLogin = false
                 toast = "خوش آمدی $u ☕"
-                scope.launch { sync.pushPending() }
-                refreshLeague()
+                scope.launch {
+                    sync.pushPending()
+                    refreshLeague()
+                }
             },
             onSkip = { showLogin = false }
         )

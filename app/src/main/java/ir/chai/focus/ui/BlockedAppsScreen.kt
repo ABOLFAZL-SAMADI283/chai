@@ -182,10 +182,7 @@ fun BlockedAppsScreen(
                     } else {
                         Checkbox(
                             checked = false,
-                            onCheckedChange = { onToggle(app.pkg) },
-                            colors = androidx.compose.material3.CheckboxDefaults.colors(
-                                checkedTrackColor = Chai.Primary
-                            )
+                            onCheckedChange = { onToggle(app.pkg) }
                         )
                     }
                 }
