@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,6 +64,32 @@ import ir.chai.focus.ui.Chai
 import ir.chai.focus.ui.ChaiLogo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+/**
+ * ورود نرم با تأخیر — هر بخش کمی بعد از قبلی ظاهر می‌شود.
+ */
+@Composable
+private fun Enter(delayMs: Int, content: @Composable () -> Unit) {
+    val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
+    val dy = remember { androidx.compose.animation.core.Animatable(18f) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(delayMs.toLong())
+        alpha.animateTo(
+            1f,
+            androidx.compose.animation.core.tween(360, easing = androidx.compose.animation.core.FastOutSlowInEasing)
+        )
+        dy.animateTo(
+            0f,
+            androidx.compose.animation.core.spring(dampingRatio = 0.85f, stiffness = 260f)
+        )
+    }
+    Box(
+        Modifier.graphicsLayer {
+            this.alpha = alpha.value
+            translationY = dy.value
+        }
+    ) { content() }
+}
 
 /**
  * صفحهٔ ورود/ثبت‌نام «چای».
@@ -122,23 +149,28 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // ── لوگو ──
-        ChaiLogo(modifier = Modifier.size(112.dp), fill = 0.7f, showWord = false)
-        Spacer(Modifier.height(10.dp))
-        Text(
-            "چای",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black,
-            color = Chai.Teal
-        )
-        Text(
-            "۳۰ دقیقه تمرکز، یک ماگ چای",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Chai.Text2
-        )
+        Enter(0) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                ChaiLogo(modifier = Modifier.size(112.dp), fill = 0.7f, showWord = false)
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    "چای",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Black,
+                    color = Chai.Teal
+                )
+                Text(
+                    "۳۰ دقیقه تمرکز، یک ماگ چای",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Chai.Text2
+                )
+            }
+        }
 
         Spacer(Modifier.height(22.dp))
 
         // ── کارت فرم ──
+        Enter(120) {
         Column(
             Modifier
                 .fillMaxWidth()
@@ -360,6 +392,7 @@ fun LoginScreen(
                 Text("فعلاً بدون حساب ادامه می‌دم", color = Chai.Text2)
             }
         }
+        }   // پایان Enter
 
         Spacer(Modifier.height(16.dp))
         Text(

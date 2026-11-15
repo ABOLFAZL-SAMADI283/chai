@@ -1,5 +1,6 @@
 package ir.chai.focus
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -65,6 +66,18 @@ data class ActiveSession(
     val startedAt: Long = System.currentTimeMillis()
 )
 
+/**
+ * نام نمایشی اپ‌هایی که در این جلسه قفل می‌شوند (پیش‌فرض + انتخابیِ کاربر).
+ */
+fun blockedAppLabels(ctx: Context, packages: Collection<String>): List<String> {
+    val pm = ctx.packageManager
+    return packages.mapNotNull { pkg ->
+        runCatching {
+            pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString().trim()
+        }.getOrNull()
+    }.filter { it.isNotBlank() }.distinct()
+}
+
 @Composable
 fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSec: Int) -> Unit) {
     var remaining by remember { mutableIntStateOf(session.totalSec) }
@@ -81,9 +94,17 @@ fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSe
     )
 
     // قفل اپ‌ها
+    val blockedPkgs = remember(session.goal.id) { session.goal.packages + Prefs.extraBlocked(ctx) }
+    val blockedNames = remember(blockedPkgs) { blockedAppLabels(ctx, blockedPkgs) }
+    val lockText = when {
+        blockedNames.isEmpty() -> "اپ‌های حواس‌پرت‌کن قفل شدند"
+        blockedNames.size <= 3 -> blockedNames.joinToString("، ") + " قفل شدند"
+        else -> blockedNames.take(2).joinToString("، ") + " و ${blockedNames.size - 2} اپ دیگر قفل شدند"
+    }
+
     LaunchedEffect(Unit) {
         FocusBlockerService.sessionActive = true
-        FocusBlockerService.blockedPackages = (session.goal.packages + Prefs.extraBlocked(ctx)).toSet()
+        FocusBlockerService.blockedPackages = blockedPkgs.toSet()
         FocusBlockerService.goalLabel = session.goal.label
     }
 
@@ -91,6 +112,8 @@ fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSe
     LaunchedEffect(remaining) {
         if (remaining <= 0) {
             FocusBlockerService.sessionActive = false
+            Prefs.setLastSessionSec(ctx, elapsed)
+            Feedback.sessionFinished(ctx)      // صدا + لرزش + اعلان (طبق تنظیمات)
             finished = true
             delay(60)
             return@LaunchedEffect
@@ -192,7 +215,7 @@ fun SessionScreen(session: ActiveSession, onExit: (completed: Boolean, elapsedSe
                     modifier = Modifier.size(15.dp)
                 )
                 Text(
-                    if (blockerLive) "اپ‌های حواس‌پرت‌کن قفل شدند"
+                    if (blockerLive) lockText
                     else "⚠️ سرویس قفل فعال نیست — Accessibility را روشن کن",
                     style = MaterialTheme.typography.bodySmall,
                     color = if (blockerLive) Chai.Primary else Chai.Danger
@@ -462,13 +485,15 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
             )
         }
 
-        // تایمر: دقیقاً وسط بدنهٔ لیوان (نه وسط کادر)
+        // تایمر: دقیقاً داخل بدنهٔ لیوان (نه وسط کادر)
+        // مرکز بدنه در ۵۶٪ ارتفاع کادر است → برای اینکه خودِ عدد وسط بدنه بنشیند،
+        // حدود ۲۲dp پایین‌تر از مرکز کادر می‌گذاریم.
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .offset(x = (-6).dp, y = 12.dp)
+                .offset(x = (-6).dp, y = 22.dp)
         ) {
             Text(
                 TimeFmt.mmSs(remainingSec),

@@ -92,12 +92,23 @@ class MainActivity : ComponentActivity() {
     /** اجازهٔ اعلان (برای یادآور روزانه) */
     private val notificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) showTestNotification(this)
+            if (granted) {
+                Feedback.ensureChannels(this)
+                Feedback.notify(
+                    this, Feedback.CHANNEL_REMINDER, 3001,
+                    "یادآور روزانه روشن شد 🔔",
+                    "هر روز ساعت انتخابی یادآوری تمرکز می‌فرستیم."
+                )
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ensureNotificationChannel(this)
+        Feedback.ensureChannels(this)
+        // یادآور روزانه اگر روشن است، دوباره تنظیم می‌شود
+        if (Prefs.reminderOn(this)) {
+            ReminderScheduler.schedule(this, Prefs.reminderHour(this), Prefs.reminderMinute(this))
+        }
         // ثبت بازدید (محلی همیشه، سرور در پس‌زمینه)
         val visits = Visits(this)
         visits.registerOpen()
@@ -119,7 +130,7 @@ class MainActivity : ComponentActivity() {
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                                 notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                             } else {
-                                showTestNotification(this@MainActivity)
+                                Feedback.ensureChannels(this@MainActivity)
                             }
                         }
                     )
@@ -169,7 +180,11 @@ fun ChaiApp(
     var session by remember { mutableStateOf<ActiveSession?>(null) }
     var sessions by remember { mutableStateOf(store.load()) }
     var perms by remember { mutableStateOf(PermState.read(ctx)) }
-    var online by remember { mutableStateOf(net.isOnline()) }
+    var netOnline by remember { mutableStateOf(net.isOnline()) }
+    var serverOk by remember { mutableStateOf(false) }
+    // اینترنت هست اگر یا سیستم بگوید وصل است، یا سرور خودش جواب داده باشد
+    // (روی بعضی شبکه‌ها پرچم VALIDATED اشتباه false است ⇒ فقط به آن تکیه نمی‌کنیم)
+    val online = netOnline || serverOk
     var activeCount by remember { mutableIntStateOf(visits?.cachedActive() ?: 0) }
     var todayOpens by remember { mutableIntStateOf(visits?.todayOpens ?: 0) }
     var leagueRows by remember { mutableStateOf(emptyList<LeagueRow>()) }
@@ -184,7 +199,7 @@ fun ChaiApp(
 
     // ── پایش اینترنت ──
     DisposableEffect(net) {
-        val stop = net.observe { online = it }
+        val stop = net.observe { netOnline = it }
         onDispose { stop() }
     }
 
@@ -199,24 +214,28 @@ fun ChaiApp(
     }
 
     // ── بازدید، شمارندهٔ فعال و همگام‌سازی ──
-    LaunchedEffect(online) {
-        repo.logVisit(visits?.anonId ?: "anon", "app_open").onFailure { }
-        repo.activeCount().onSuccess { c ->
-            activeCount = c.total
-            todayOpens = c.todayOpens
-            visits?.cacheActive(c.total, System.currentTimeMillis())
-        }
-        if (online && repo.isLoggedIn) {
-            sync.pushPending()
-        }
-        while (true) {
-            delay(60_000)
-            repo.activeCount().onSuccess { c ->
+    suspend fun tick() {
+        // heartbeat: هر دقیقه یک‌بار تا «همین الان فعال» ما را نشان بدهد
+        repo.logVisit(visits?.anonId ?: "anon", "app_open")
+            .onSuccess { serverOk = true }
+            .onFailure { serverOk = false }
+
+        repo.activeCount()
+            .onSuccess { c ->
+                serverOk = true
                 activeCount = c.total
                 todayOpens = c.todayOpens
                 visits?.cacheActive(c.total, System.currentTimeMillis())
             }
-            if (online && repo.isLoggedIn) sync.pushPending()
+            .onFailure { serverOk = false }
+
+        if (serverOk && repo.isLoggedIn) sync.pushPending()
+    }
+
+    LaunchedEffect(netOnline) {
+        while (true) {
+            tick()
+            delay(60_000)
         }
     }
 
@@ -410,19 +429,36 @@ fun ChaiApp(
                             onOpenBlockedApps = { blockedAppsOpen = true },
                             onOpenLegal = { legalKind = it },
                             soundOn = Prefs.soundOn(ctx),
-                            onSoundChange = { Prefs.setSoundOn(ctx, it) },
+                            onSoundChange = { on ->
+                                Prefs.setSoundOn(ctx, on)
+                                // تست فوری صدا
+                                if (on) Feedback.sessionFinished(ctx)
+                            },
                             vibrateOn = Prefs.vibrateOn(ctx),
-                            onVibrateChange = { Prefs.setVibrateOn(ctx, it) },
+                            onVibrateChange = { on ->
+                                Prefs.setVibrateOn(ctx, on)
+                                if (on) Feedback.vibrate(ctx)
+                            },
                             reminderOn = Prefs.reminderOn(ctx),
                             onReminderChange = { on ->
                                 Prefs.setReminderOn(ctx, on)
-                                if (on) onRequestNotifications()
+                                if (on) {
+                                    ReminderScheduler.schedule(
+                                        ctx, Prefs.reminderHour(ctx), Prefs.reminderMinute(ctx)
+                                    )
+                                    onRequestNotifications()
+                                } else {
+                                    ReminderScheduler.cancel(ctx)
+                                }
                             },
                             reminderHour = Prefs.reminderHour(ctx),
                             reminderMinute = Prefs.reminderMinute(ctx),
                             onReminderTimeChange = { h, m ->
                                 Prefs.setReminderHour(ctx, h)
                                 Prefs.setReminderMinute(ctx, m)
+                                if (Prefs.reminderOn(ctx)) {
+                                    ReminderScheduler.schedule(ctx, h, m)
+                                }
                             },
                             showActive = Prefs.showActiveCount(ctx),
                             onShowActiveChange = { Prefs.setShowActiveCount(ctx, it) },
@@ -733,44 +769,6 @@ fun DurationPill(minutes: Int, selected: Boolean, onClick: () -> Unit) {
 }
 
 /* ───────────────────────── کمکی‌ها ───────────────────────── */
-
-/** ساخت کانال اعلان (برای یادآور روزانه) */
-fun ensureNotificationChannel(ctx: Context) {
-    try {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val mgr = ctx.getSystemService(android.app.NotificationManager::class.java)
-            if (mgr?.getNotificationChannel("chai") == null) {
-                val ch = android.app.NotificationChannel(
-                    "chai", "یادآور تمرکز", android.app.NotificationManager.IMPORTANCE_DEFAULT
-                )
-                ch.description = "یادآوری روزانهٔ شروع تمرکز"
-                mgr?.createNotificationChannel(ch)
-            }
-        }
-    } catch (e: Exception) {
-        // بی‌خیال
-    }
-}
-
-/** تست اعلان (اگر مجوز داده شده باشد) */
-private fun showTestNotification(ctx: Context) {
-    try {
-        ensureNotificationChannel(ctx)
-        val mgr = ctx.getSystemService(android.app.NotificationManager::class.java)
-        mgr?.notify(
-            1001,
-            androidx.core.app.NotificationCompat.Builder(ctx, "chai")
-                .setSmallIcon(R.drawable.ic_chai_cup)
-                .setContentTitle("چای")
-                .setContentText("وقتشه یک فنجان چای بریزی ☕")
-                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
-                .build()
-        )
-    } catch (e: Exception) {
-        // اعلان بدون مجوز — بی‌خیال
-    }
-}
 
 /** نسخهٔ برنامه */
 private fun appVersion(ctx: Context): String = try {

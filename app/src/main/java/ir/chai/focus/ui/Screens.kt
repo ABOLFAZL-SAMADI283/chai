@@ -72,14 +72,36 @@ import ir.chai.focus.TimeFmt
 @Composable
 fun ChaiCard(
     modifier: Modifier = Modifier,
+    index: Int = 0,
     content: @Composable () -> Unit
 ) {
+    // ورود پله‌ای — هر کارت کمی بعد از قبلی ظاهر می‌شود
+    val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
+    val dy = remember { androidx.compose.animation.core.Animatable(24f) }
+    androidx.compose.runtime.LaunchedEffect(index) {
+        kotlinx.coroutines.delay((index.coerceIn(0, 12) * 60).toLong())
+        alpha.animateTo(
+            1f,
+            androidx.compose.animation.core.tween(340, easing = androidx.compose.animation.core.FastOutSlowInEasing)
+        )
+        dy.animateTo(
+            0f,
+            androidx.compose.animation.core.spring(
+                dampingRatio = 0.85f,
+                stiffness = 260f
+            )
+        )
+    }
     Column(
         modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
             .background(Chai.Surface)
             .padding(14.dp)
+            .graphicsLayer {
+                this.alpha = alpha.value
+                translationY = dy.value
+            }
     ) { content() }
 }
 
@@ -167,7 +189,7 @@ fun StatsScreen(
 
         // ── کارت بزرگ امروز ──
         item {
-            ChaiCard {
+            ChaiCard(index = 1) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ProgressRing(
                         progress = goalProgress,
@@ -213,7 +235,7 @@ fun StatsScreen(
 
         // ── نمودار هفته ──
         item {
-            ChaiCard {
+            ChaiCard(index = 2) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("این هفته", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                     Text(
@@ -229,7 +251,7 @@ fun StatsScreen(
 
         // ── نقشهٔ حرارتی ──
         item {
-            ChaiCard {
+            ChaiCard(index = 3) {
                 Text("۵ هفتهٔ اخیر", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(10.dp))
                 val days = remember(sessions) {
@@ -264,7 +286,7 @@ fun StatsScreen(
         // ── تفکیک هدف ──
         if (sessions.isNotEmpty()) {
             item {
-                ChaiCard {
+                ChaiCard(index = 4) {
                     Text("بر اساس هدف", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                     Spacer(Modifier.height(10.dp))
                     GoalBreakdown(sessions = sessions)
@@ -275,7 +297,7 @@ fun StatsScreen(
         // ── نشان‌ها ──
         item {
             val badges = computeBadges(sessions, streak)
-            ChaiCard {
+            ChaiCard(index = 5) {
                 Text("نشان‌ها", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(10.dp))
                 if (badges.isEmpty()) {
@@ -318,7 +340,7 @@ fun StatsScreen(
 
         // ── خلاصهٔ کل ──
         item {
-            ChaiCard {
+            ChaiCard(index = 6) {
                 Text("خلاصهٔ کل", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -404,7 +426,7 @@ fun LeagueScreen(
 
         // ── کارت لیگ من ──
         item {
-            ChaiCard {
+            ChaiCard(index = 1) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         Modifier
@@ -470,7 +492,7 @@ fun LeagueScreen(
 
         // ── جدول ──
         item {
-            ChaiCard {
+            ChaiCard(index = 2) {
                 Text("جدول هفتگی", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(4.dp))
                 if (rows.isEmpty()) {
@@ -510,7 +532,7 @@ fun LeagueScreen(
 
         // ── دوئل ──
         item {
-            ChaiCard {
+            ChaiCard(index = 3) {
                 Text("⚔️ دوئل", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -557,7 +579,7 @@ fun LeagueScreen(
 
         // ── چالش روزانه ──
         item {
-            ChaiCard {
+            ChaiCard(index = 4) {
                 Text("🎯 چالش روزانه", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(4.dp))
                 if (daily != null) {

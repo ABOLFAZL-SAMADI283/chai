@@ -16,14 +16,21 @@ class NetMonitor(context: Context) {
 
     private val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
 
-    /** آیا الان اینترنت واقعی (نه فقط Wi-Fi وصل بدون اینترنت) داریم؟ */
+    /**
+     * آیا الان اینترنت داریم؟
+     *
+     * نکتهٔ مهم: فقط `NET_CAPABILITY_VALIDATED` را نباید ملاک قرار داد —
+     * روی خیلی از شبکه‌های موبایل ایران، این پرچم حتی با اینترنتِ سالم هم false است
+     * (به‌خاطر DNS فیلترینگ یا captive portal). پس اگر NET_CAPABILITY_INTERNET باشد،
+     * اینترنت هست. اگر شک داشتیم، خودِ سرور حکم می‌دهد (serverOk).
+     */
     fun isOnline(): Boolean {
         val c = cm ?: return false
         return try {
             val net = c.activeNetwork ?: return false
             val caps = c.getNetworkCapabilities(net) ?: return false
             caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
         } catch (e: Exception) {
             false
         }

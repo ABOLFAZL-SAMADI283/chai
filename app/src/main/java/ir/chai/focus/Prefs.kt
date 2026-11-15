@@ -61,6 +61,10 @@ object Prefs {
     fun defaultMinutes(ctx: Context): Int = sp(ctx).getInt("default_minutes", 30)
     fun setDefaultMinutes(ctx: Context, v: Int) = sp(ctx).edit().putInt("default_minutes", v).apply()
 
+    /** مدت آخرین جلسهٔ تمام‌شده (برای پیام «آفرین!» هنگام پایان) */
+    fun lastSessionSec(ctx: Context): Int = sp(ctx).getInt("last_session_sec", 0)
+    fun setLastSessionSec(ctx: Context, v: Int) = sp(ctx).edit().putInt("last_session_sec", v).apply()
+
     /* ───────── حساب ───────── */
     /** آخرین کد بازیابی که کاربر ذخیره کرده (فقط روی همین دستگاه، اختیاری) */
     fun savedRecoveryCode(ctx: Context): String = sp(ctx).getString("recovery_code", "") ?: ""

@@ -2,6 +2,7 @@ package ir.chai.focus
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.AppOpsManager
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -33,15 +34,38 @@ object Permissions {
         }
     }
 
-    /** آیا دسترسی Usage access داده شده؟ */
+    /**
+     * آیا دسترسی Usage access داده شده؟
+     *
+     * نکتهٔ مهم: باید UID بسته داده شود نه PID — وگرنه روی اندروید ۱۲ همیشه
+     * «دسترسی نداری» برمی‌گرداند. اگر هم باز جواب نداد، یک بررسی عملی
+     * (خواندن رویدادهای UsageStats) انجام می‌دهیم.
+     */
     fun usageAccessGranted(ctx: Context): Boolean {
         val ops = ctx.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager ?: return false
+        val uid = Process.myUid()
         val mode = try {
-            ops.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myPid(), ctx.packageName)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                ops.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, uid, ctx.packageName)
+            } else {
+                ops.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, uid, ctx.packageName)
+            }
         } catch (e: Exception) {
             AppOpsManager.MODE_DEFAULT
         }
-        return mode == AppOpsManager.MODE_ALLOWED
+        if (mode == AppOpsManager.MODE_ALLOWED) return true
+
+        // بررسی عملی: اگر مجوز داده شده باشد، رویدادهای استفاده قابل خواندن است
+        return try {
+            val usm = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            val events = usm?.queryEvents(
+                System.currentTimeMillis() - 7 * 86400000L,
+                System.currentTimeMillis()
+            )
+            events != null && events.hasNext()
+        } catch (e: Exception) {
+            false
+        }
     }
 
     /* ─────────────── باز کردن صفحه‌های تنظیمات ─────────────── */

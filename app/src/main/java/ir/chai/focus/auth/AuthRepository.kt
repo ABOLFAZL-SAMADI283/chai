@@ -246,7 +246,10 @@ class AuthRepository(private val context: Context) {
         try {
             val res = request("rest/v1/rpc/active_count", "POST", "{}", authed = false)
             if (!res.first) return@withContext Result.failure(Exception(res.second))
-            val o = JSONObject(res.second)
+            // نکتهٔ مهم: RPCهایی که table برمی‌گردانند آرایهٔ JSON می‌دهند، نه آبجکت
+            val arr = JSONArray(res.second)
+            val o = arr.optJSONObject(0)
+                ?: return@withContext Result.failure(Exception("پاسخ سرور نامعتبر بود"))
             val byGoal = HashMap<String, Int>()
             val g = o.optJSONObject("by_goal")
             if (g != null) {
@@ -256,7 +259,7 @@ class AuthRepository(private val context: Context) {
                 ActiveCount(
                     total = o.optInt("total"),
                     byGoal = byGoal,
-                    todayOpens = o.optInt("today_opens")
+                    todayOpens = if (o.isNull("today_opens")) 0 else o.optInt("today_opens")
                 )
             )
         } catch (e: Exception) {

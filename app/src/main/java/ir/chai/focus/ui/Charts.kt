@@ -1,5 +1,8 @@
 package ir.chai.focus.ui
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +38,12 @@ fun WeeklyBarChart(
     height: androidx.compose.ui.unit.Dp = 96.dp
 ) {
     val max = (data.maxOfOrNull { it.second } ?: 1).coerceAtLeast(1)
+    // رشد پله‌ای ستون‌ها
+    val grow by animateFloatAsState(
+        targetValue = if (data.isNotEmpty()) 1f else 0f,
+        animationSpec = tween(900, easing = FastOutSlowInEasing),
+        label = "barsGrow"
+    )
     Column(modifier = modifier) {
         Box(modifier = Modifier.fillMaxWidth().height(height), contentAlignment = Alignment.BottomStart) {
             androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxWidth().height(height)) {
@@ -43,8 +52,10 @@ fun WeeklyBarChart(
                 val gap = size.width / n * 0.28f
                 val barW = size.width / n - gap
                 data.forEachIndexed { i, (_, sec) ->
+                    // هر ستون کمی دیرتر از قبلی رشد می‌کند
+                    val local = ((grow * (n + 2.5f) - i) / 2.5f).coerceIn(0f, 1f)
                     val ratio = sec.toFloat() / max
-                    val barH = (size.height * ratio).coerceAtLeast(if (sec > 0) 6f else 2f)
+                    val barH = (size.height * ratio * local).coerceAtLeast(if (sec > 0) 6f else 2f)
                     val x = i * (barW + gap)
                     val isToday = i == n - 1
                     drawRoundRect(

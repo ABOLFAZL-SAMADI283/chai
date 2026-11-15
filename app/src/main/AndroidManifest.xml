@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- دیدن اپ‌های نصب‌شده برای صفحهٔ «اپ‌های قفل‌شونده» (بدون مجوز حساس) -->
     <queries>
@@ -50,6 +51,24 @@
             android:launchMode="singleInstance"
             android:noHistory="true"
             android:taskAffinity=".block" />
+
+        <!-- یادآور روزانه (AlarmManager) -->
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="ir.chai.focus.REMINDER" />
+            </intent-filter>
+        </receiver>
+
+        <!-- تنظیم دوبارهٔ یادآور بعد از ریستارت گوشی -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <!-- سرویس قفل اپ‌ها -->
         <service
