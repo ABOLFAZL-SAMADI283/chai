@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -77,20 +78,28 @@ fun ChaiLogo(
                 style = Stroke(width = w * 0.035f)
             )
 
-            // چای داخل ماگ
+            // ۱) بدنه (پُر کرمی) — اول
+            drawPath(body, color = cupColor)
+
+            // ۲) چای داخل ماگ (کلیپ‌شده، تا سطح) — روی پُر
             if (fill > 0f) {
                 val level = bottom - (bottom - top) * fill.coerceIn(0f, 1f)
-                drawPath(body, color = teaColor)
-                // سطح چای
-                drawRect(
-                    color = teaColor.copy(alpha = 0.85f),
-                    topLeft = Offset(left, level),
-                    size = Size(right - left, 2f)
-                )
+                clipPath(body) {
+                    drawRect(
+                        color = teaColor,
+                        topLeft = Offset(left, level),
+                        size = Size(right - left, bottom - level + h * 0.05f)
+                    )
+                    // سطح چای
+                    drawRect(
+                        color = teaColor.copy(alpha = 0.8f),
+                        topLeft = Offset(left, level),
+                        size = Size(right - left, 2f)
+                    )
+                }
             }
 
-            // بدنه
-            drawPath(body, color = cupColor)
+            // ۳) خط بدنه (آخر)
             drawPath(body, color = rimColor, style = Stroke(width = w * 0.030f))
         }
 

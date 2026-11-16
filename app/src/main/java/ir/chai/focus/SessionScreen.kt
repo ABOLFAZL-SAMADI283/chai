@@ -436,7 +436,10 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
                 style = Stroke(width = w * 0.028f)
             )
 
-            // چای داخل ماگ (با کلیپ)
+            // ۱) بدنهٔ ماگ (پُر کرمی) — اول کشیده می‌شود
+            drawPath(body, color = cupColor)
+
+            // ۲) چای داخل ماگ (کلیپ‌شده به بدنه) — روی پُر کشیده می‌شود
             clipPath(body) {
                 val level = bottom - (bottom - top) * progress.coerceIn(0f, 1f)
                 drawRect(
@@ -452,13 +455,12 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
                 )
             }
 
-            // بدنه
-            drawPath(body, color = cupColor)
+            // ۳) خط بدنه (آخر، تا روی چای بیفتد)
             drawPath(body, color = rimColor, style = Stroke(width = w * 0.022f))
 
             // براقیت روی بدنه
             drawRect(
-                color = Color.White.copy(alpha = 0.5f),
+                color = Color.White.copy(alpha = 0.45f),
                 topLeft = Offset(left + w * 0.05f, top + h * 0.04f),
                 size = Size(w * 0.035f, (bottom - top) * 0.62f)
             )
