@@ -62,7 +62,7 @@ object Permissions {
                 System.currentTimeMillis() - 7 * 86400000L,
                 System.currentTimeMillis()
             )
-            events != null && events.hasNext()
+            events != null && events.hasNextEvent()
         } catch (e: Exception) {
             false
         }

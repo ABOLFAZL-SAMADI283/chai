@@ -412,23 +412,26 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
             val right = w * 0.72f
             val top = h * 0.26f
             val bottom = h * 0.86f
+            val inset = (right - left) * 0.12f
+            val cx = (left + right) / 2f          // مرکز افقی لیوان
+            val cy = (top + bottom) / 2f          // مرکز عمودی لیوان
 
-            // بدنهٔ ماگ
+            // بدنهٔ ماگ — کاملاً متقارن حول cx
             val body = Path().apply {
                 moveTo(left, top)
                 lineTo(right, top)
-                lineTo(right - (right - left) * 0.12f, bottom)
-                quadraticTo((right + left) / 2f, bottom + h * 0.04f, left + (right - left) * 0.12f, bottom)
+                lineTo(right - inset, bottom)
+                quadraticTo(cx, bottom + h * 0.035f, left + inset, bottom)
                 close()
             }
 
-            // دسته
+            // دستگیره — دقیقاً هم‌ارتفاع مرکز لیوان (نه بالاتر)
             drawArc(
                 color = rimColor,
                 startAngle = -70f,
                 sweepAngle = 140f,
                 useCenter = false,
-                topLeft = Offset(right - w * 0.04f, top + h * 0.10f),
+                topLeft = Offset(right - w * 0.04f, cy - h * 0.13f),
                 size = Size(w * 0.26f, h * 0.26f),
                 style = Stroke(width = w * 0.028f)
             )
@@ -453,21 +456,25 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
             drawPath(body, color = cupColor)
             drawPath(body, color = rimColor, style = Stroke(width = w * 0.022f))
 
-            // بخار
-            val s = steam
+            // براقیت روی بدنه
+            drawRect(
+                color = Color.White.copy(alpha = 0.5f),
+                topLeft = Offset(left + w * 0.05f, top + h * 0.04f),
+                size = Size(w * 0.035f, (bottom - top) * 0.62f)
+            )
+
+            // بخار — وسط لیوان
             val steamColor = Color(0xFFC9BBA6)
             val p1 = Path().apply {
-                moveTo(w * 0.40f, top - h * 0.06f)
-                quadraticTo(w * 0.46f, top - h * 0.14f, w * 0.40f, top - h * 0.20f)
-                moveTo(w * 0.54f, top - h * 0.04f)
-                quadraticTo(w * 0.60f, top - h * 0.12f, w * 0.54f, top - h * 0.18f)
+                moveTo(cx - w * 0.045f, top - h * 0.05f)
+                quadraticTo(cx - w * 0.015f, top - h * 0.13f, cx - w * 0.045f, top - h * 0.19f)
+                moveTo(cx + w * 0.045f, top - h * 0.04f)
+                quadraticTo(cx + w * 0.075f, top - h * 0.12f, cx + w * 0.045f, top - h * 0.18f)
             }
             drawPath(p1, color = steamColor.copy(alpha = 0.75f), style = Stroke(width = w * 0.016f))
 
-            // حلقهٔ پیشرفت دور ماگ
+            // حلقهٔ پیشرفت — هم‌مرکز با خودِ لیوان
             val ringR = w * 0.44f
-            val cx = w / 2f
-            val cy = h / 2f
             drawCircle(
                 color = Chai.Soft,
                 radius = ringR,
@@ -486,14 +493,13 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
         }
 
         // تایمر: دقیقاً داخل بدنهٔ لیوان (نه وسط کادر)
-        // مرکز بدنه در ۵۶٪ ارتفاع کادر است → برای اینکه خودِ عدد وسط بدنه بنشیند،
-        // حدود ۲۲dp پایین‌تر از مرکز کادر می‌گذاریم.
+        // مرکز لیوان: افقی ۴۷٪ عرض، عمودی ۵۶٪ ارتفاع ⇒ حدود ۷dp چپ و ۲۱dp پایین
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .offset(x = (-6).dp, y = 22.dp)
+                .offset(x = (-7).dp, y = 21.dp)
         ) {
             Text(
                 TimeFmt.mmSs(remainingSec),

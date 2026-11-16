@@ -67,11 +67,12 @@ fun ChaiLogo(
                 close()
             }
 
-            // دستهٔ ماگ
+            // دستهٔ ماگ — هم‌ارتفاع مرکز لیوان
+            val cy = (top + bottom) / 2f
             drawArc(
                 color = rimColor,
                 startAngle = -72f, sweepAngle = 144f, useCenter = false,
-                topLeft = Offset(right - w * 0.04f, top + h * 0.10f),
+                topLeft = Offset(right - w * 0.04f, cy - h * 0.14f),
                 size = Size(w * 0.28f, h * 0.28f),
                 style = Stroke(width = w * 0.035f)
             )
@@ -125,7 +126,7 @@ fun ChaiLogoMark(modifier: Modifier = Modifier, size: Dp = 40.dp) {
         }
         drawArc(
             color = Chai.Tea, startAngle = -72f, sweepAngle = 144f, useCenter = false,
-            topLeft = Offset(right - w * 0.04f, top + h * 0.10f),
+            topLeft = Offset(right - w * 0.04f, (top + bottom) / 2f - h * 0.14f),
             size = Size(w * 0.28f, h * 0.28f), style = Stroke(width = w * 0.05f)
         )
         drawPath(body, color = Chai.Milk)
