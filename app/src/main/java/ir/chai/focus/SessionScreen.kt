@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
@@ -56,6 +57,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ir.chai.focus.ui.Chai
 import kotlinx.coroutines.delay
 
@@ -436,44 +438,58 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
                 style = Stroke(width = w * 0.028f)
             )
 
+            // سایهٔ نرم زیر ماگ (حس عمق)
+            drawOval(
+                color = Color(0xFF0F766E).copy(alpha = 0.10f),
+                topLeft = Offset(cx - w * 0.30f, bottom + h * 0.015f),
+                size = Size(w * 0.60f, h * 0.05f)
+            )
+
             // ۱) بدنهٔ ماگ (پُر کرمی) — اول کشیده می‌شود
             drawPath(body, color = cupColor)
 
-            // ۲) چای داخل ماگ (کلیپ‌شده به بدنه) — روی پُر کشیده می‌شود
+            // ۲) چای داخل ماگ (کلیپ‌شده به بدنه) — با گرادیان عمقی
             clipPath(body) {
                 val level = bottom - (bottom - top) * progress.coerceIn(0f, 1f)
-                drawRect(
-                    color = teaColor,
-                    topLeft = Offset(0f, level),
-                    size = Size(w, bottom - level + 4f)
-                )
-                // سطح چای
-                drawRect(
-                    color = teaColor.copy(alpha = 0.55f),
-                    topLeft = Offset(0f, level),
-                    size = Size(w, 3f)
-                )
+                if (bottom - level > 2f) {
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color(0xFF9C6A42), Color(0xFF7A4E2E)),
+                            startY = level,
+                            endY = bottom
+                        ),
+                        topLeft = Offset(0f, level),
+                        size = Size(w, bottom - level + 4f)
+                    )
+                    // سطح چای (خط روشن)
+                    drawRect(
+                        color = Color(0xFFC08A55),
+                        topLeft = Offset(0f, level),
+                        size = Size(w, 3f)
+                    )
+                }
             }
 
             // ۳) خط بدنه (آخر، تا روی چای بیفتد)
             drawPath(body, color = rimColor, style = Stroke(width = w * 0.022f))
 
-            // براقیت روی بدنه
+            // براقیت روی بدنه (باریک و نرم)
             drawRect(
-                color = Color.White.copy(alpha = 0.45f),
-                topLeft = Offset(left + w * 0.05f, top + h * 0.04f),
-                size = Size(w * 0.035f, (bottom - top) * 0.62f)
+                color = Color.White.copy(alpha = 0.35f),
+                topLeft = Offset(left + w * 0.045f, top + h * 0.05f),
+                size = Size(w * 0.03f, (bottom - top) * 0.6f)
             )
 
-            // بخار — وسط لیوان
+            // بخار — وسط لیوان، با آلفای نفس‌کش
             val steamColor = Color(0xFFC9BBA6)
+            val steamAlpha = 0.55f + 0.3f * (1f - kotlin.math.abs(steam * 2f - 1f))
             val p1 = Path().apply {
                 moveTo(cx - w * 0.045f, top - h * 0.05f)
                 quadraticTo(cx - w * 0.015f, top - h * 0.13f, cx - w * 0.045f, top - h * 0.19f)
                 moveTo(cx + w * 0.045f, top - h * 0.04f)
                 quadraticTo(cx + w * 0.075f, top - h * 0.12f, cx + w * 0.045f, top - h * 0.18f)
             }
-            drawPath(p1, color = steamColor.copy(alpha = 0.75f), style = Stroke(width = w * 0.016f))
+            drawPath(p1, color = steamColor.copy(alpha = steamAlpha), style = Stroke(width = w * 0.016f))
 
             // حلقهٔ پیشرفت — هم‌مرکز با خودِ لیوان
             val ringR = w * 0.44f
@@ -506,7 +522,9 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
             Text(
                 TimeFmt.mmSs(remainingSec),
                 style = MaterialTheme.typography.displaySmall.copy(
-                    shadow = Shadow(Color(0x99000000), Offset(0f, 2f), 6f)
+                    fontSize = 42.sp,
+                    // سایهٔ پررنگ تا تایمر هم روی چای و هم روی بخش خالی لیوان خوانا بماند
+                    shadow = Shadow(Color(0xE6000000), Offset(0f, 2f), 10f)
                 ),
                 fontWeight = FontWeight.Black,
                 color = if (remainingSec < 60) Color(0xFFFF6B6B) else Chai.Milk
@@ -514,9 +532,9 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
             Text(
                 "باقی‌مانده",
                 style = MaterialTheme.typography.labelSmall.copy(
-                    shadow = Shadow(Color(0x99000000), Offset(0f, 1f), 4f)
+                    shadow = Shadow(Color(0xCC000000), Offset(0f, 1f), 6f)
                 ),
-                color = Chai.Milk.copy(alpha = 0.9f)
+                color = Chai.Milk.copy(alpha = 0.95f)
             )
         }
     }

@@ -12,7 +12,7 @@
   .shot{width:1080px;height:1920px;overflow:hidden;position:relative;background:var(--bg);
         display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
   .phone{width:300px;height:640px;background:var(--bg);border-radius:28px;overflow:hidden;
-        transform:scale(3);transform-origin:center;box-shadow:0 0 60px rgba(0,0,0,.18);
+        transform:scale(3);transform-origin:center;box-shadow:none;border-radius:84px;border:3px solid rgba(28,25,23,.07);
         display:flex;flex-direction:column}
   .status{height:20px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;
           font-size:10px;font-weight:700;background:var(--bg);flex:none}
@@ -120,17 +120,24 @@
     <div class="muted">تا برگشت به تمرکز</div>
     <div class="cupwrap">
       <svg viewBox="0 0 24 24" style="width:100%;height:100%">
-        <defs><clipPath id="cu2"><path d="M3 7 L17 7 L15.4 20.5 C13 21.6 7 21.6 4.6 20.5 Z"/></clipPath></defs>
+        <defs><clipPath id="cu2"><path d="M5.3 6.2 L15.5 6.2 L14.2 19 C12.7 19.7 8.1 19.7 6.6 19 Z"/></clipPath></defs>
         <circle cx="12" cy="12" r="10.6" fill="none" stroke="#CCFBF1" stroke-width=".55"/>
         <circle cx="12" cy="12" r="10.6" fill="none" stroke="#0F766E" stroke-width=".55"
                 stroke-dasharray="48 20" transform="rotate(-90 12 12)" stroke-linecap="round"/>
-        <path fill="#F5EFDF" stroke="#8B5E3C" stroke-width=".7" d="M3 7 L17 7 L15.4 20.5 C13 21.6 7 21.6 4.6 20.5 Z"/>
-        <g clip-path="url(#cu2)"><rect x="2" y="12.5" width="16" height="9" fill="#8B5E3C"/></g>
-        <path fill="none" stroke="#8B5E3C" stroke-width=".8" d="M17 8.6 C20.7 8.6 21.1 13.6 17.5 14.5 L16.9 12.5 C18.6 12.3 18.8 10.4 16.8 10.6 Z"/>
+        <!-- بدنه (پُر) -->
+        <path d="M5.3 6.2 L15.5 6.2 L14.2 19 C12.7 19.7 8.1 19.7 6.6 19 Z" fill="#F5EFDF"/>
+        <!-- چای (سطح بالا، تا تایمر کاملاً روی چای بیفتد) -->
+        <g clip-path="url(#cu2)"><rect x="4" y="10.2" width="14" height="10" fill="#8B5E3C"/><rect x="4" y="10.2" width="14" height="0.6" fill="#C08A55"/></g>
+        <!-- خط بدنه -->
+        <path d="M5.3 6.2 L15.5 6.2 L14.2 19 C12.7 19.7 8.1 19.7 6.6 19 Z"
+              fill="none" stroke="#8B5E3C" stroke-width=".7" stroke-linejoin="round"/>
+        <!-- دستگیره (هم‌ارتفاع مرکز لیوان) -->
+        <path d="M15.4 9.7 C17.9 9.7 17.9 14.3 15.4 14.3"
+              fill="none" stroke="#8B5E3C" stroke-width=".7" stroke-linecap="round"/>
       </svg>
-      <div style="position:absolute;left:0;right:0;top:47%;text-align:center">
-        <div style="font-size:20px;font-weight:900;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.5)">۲۳:۴۱</div>
-        <div style="font-size:8.5px;color:#F5EFDF;text-shadow:0 1px 4px rgba(0,0,0,.5)">باقی‌مانده</div>
+      <div style="position:absolute;left:0;right:0;top:52%;transform:translateY(-50%);text-align:center">
+        <div style="font-size:20px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.75),0 0 10px rgba(0,0,0,.5)">۲۳:۴۱</div>
+        <div style="font-size:8.5px;color:#F5EFDF;text-shadow:0 1px 4px rgba(0,0,0,.7)">باقی‌مانده</div>
       </div>
     </div>
     <div style="width:88%;height:7px;background:#CCFBF1;border-radius:99px;overflow:hidden;margin-top:12px">
