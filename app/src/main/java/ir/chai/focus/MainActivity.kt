@@ -274,7 +274,8 @@ fun ChaiApp(
                     refreshLeague()
                 }
             },
-            onSkip = { showLogin = false }
+            onSkip = { showLogin = false },
+            onOpenLegal = { legalKind = it }
         )
         return
     }

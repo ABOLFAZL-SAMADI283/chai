@@ -6,6 +6,11 @@
         tools:ignore="ProtectedPermissions"
         xmlns:tools="http://schemas.android.com/tools" />
 
+    <!-- شبکه: ثبت‌نام، شمارندهٔ فعال‌ها، لیگ و همگام‌سازی (بدون این، همهٔ بخش‌های سروری روی گوشی بلاک می‌شوند!) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- پایش وضعیت اتصال برای بنر «وصل نیستی» -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

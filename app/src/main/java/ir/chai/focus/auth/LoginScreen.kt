@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ir.chai.focus.ui.Chai
 import ir.chai.focus.ui.ChaiLogo
+import ir.chai.focus.ui.LegalKind
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -102,7 +103,8 @@ fun LoginScreen(
     repo: AuthRepository,
     online: Boolean = true,
     onLoggedIn: (String) -> Unit,
-    onSkip: () -> Unit = {}
+    onSkip: () -> Unit = {},
+    onOpenLegal: (LegalKind) -> Unit = {}
 ) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -387,6 +389,15 @@ fun LoginScreen(
                 }
             }
 
+            if (!online) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "برای ثبت‌نام و ورود، اینترنت گوشی لازم است.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Chai.Text2
+                )
+            }
+
             Spacer(Modifier.height(6.dp))
             TextButton(onClick = onSkip) {
                 Text("فعلاً بدون حساب ادامه می‌دم", color = Chai.Text2)
@@ -395,12 +406,30 @@ fun LoginScreen(
         }   // پایان Enter
 
         Spacer(Modifier.height(16.dp))
-        Text(
-            "با ساخت حساب، قوانین و سیاست حریم خصوصی را می‌پذیرید.",
-            style = MaterialTheme.typography.bodySmall,
-            color = Chai.Text2,
-            textAlign = TextAlign.Center
-        )
+        // قوانین و حریم خصوصی — داخل خود اپ باز می‌شوند
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "با ساخت حساب،",
+                style = MaterialTheme.typography.bodySmall,
+                color = Chai.Text2
+            )
+            TextButton(onClick = { onOpenLegal(LegalKind.TERMS) }) {
+                Text("قوانین", style = MaterialTheme.typography.bodySmall, color = Chai.Teal)
+            }
+            Text(
+                "و",
+                style = MaterialTheme.typography.bodySmall,
+                color = Chai.Text2
+            )
+            TextButton(onClick = { onOpenLegal(LegalKind.PRIVACY) }) {
+                Text("سیاست حریم خصوصی", style = MaterialTheme.typography.bodySmall, color = Chai.Teal)
+            }
+            Text(
+                "را می‌پذیرید.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Chai.Text2
+            )
+        }
         Spacer(Modifier.height(20.dp))
     }
 }
