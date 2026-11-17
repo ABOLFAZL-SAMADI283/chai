@@ -628,6 +628,7 @@ fun LeagueScreen(
                         onValueChange = { duelName = it },
                         label = { Text("نام کاربری یا نام نمایشی دوستت") },
                         singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = Chai.Text),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(10.dp))
@@ -645,7 +646,7 @@ fun LeagueScreen(
                         Text(
                             duelMsg!!,
                             style = MaterialTheme.typography.bodySmall,
-                            color = if (duelMsg!!.startsWith("✅")) Chai.Primary else Chai.Danger
+                            color = if (duelMsg!!.startsWith("✅") || duelMsg!!.startsWith("⏳")) Chai.Primary else Chai.Danger
                         )
                     }
                 }
@@ -657,7 +658,7 @@ fun LeagueScreen(
                             duelMsg = "نام دوستت را بنویس"
                         } else {
                             onCreateDuel(duelName.trim(), duelMinutes)
-                            duelMsg = "✅ درخواست دوئل فرستاده شد"
+                            duelMsg = "⏳ در حال ارسال… نتیجه با پیام بالا اعلام می‌شود"
                         }
                     }
                 ) { Text("بفرست", color = Chai.Primary) }

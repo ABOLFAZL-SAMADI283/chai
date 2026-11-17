@@ -191,6 +191,12 @@ fun ChaiApp(
     var duels by remember { mutableStateOf(emptyList<Duel>()) }
     var daily by remember { mutableStateOf<DailyChallenge?>(null) }
     var defaultMinutes by remember { mutableIntStateOf(Prefs.defaultMinutes(ctx)) }
+    var soundOn by remember { mutableStateOf(Prefs.soundOn(ctx)) }
+    var vibrateOn by remember { mutableStateOf(Prefs.vibrateOn(ctx)) }
+    var reminderOn by remember { mutableStateOf(Prefs.reminderOn(ctx)) }
+    var reminderHourS by remember { mutableIntStateOf(Prefs.reminderHour(ctx)) }
+    var reminderMinuteS by remember { mutableIntStateOf(Prefs.reminderMinute(ctx)) }
+    var showActive by remember { mutableStateOf(Prefs.showActiveCount(ctx)) }
     var toast by remember { mutableStateOf<String?>(null) }
     var showLogin by remember { mutableStateOf(false) }
     var legalKind by remember { mutableStateOf<LegalKind?>(null) }
@@ -361,7 +367,7 @@ fun ChaiApp(
                         activeNow = activeCount,
                         todayOpens = todayOpens,
                         todaySeconds = Stats.todaySeconds(sessions),
-                        showActive = Prefs.showActiveCount(ctx),
+                        showActive = showActive,
                         perms = perms,
                         onOpenAccessibility = { Permissions.openAccessibilitySettings(ctx) },
                         onOpenUsage = { Permissions.openUsageAccessSettings(ctx) },
@@ -429,40 +435,46 @@ fun ChaiApp(
                             onOpenAppDetails = { Permissions.openAppDetails(ctx) },
                             onOpenBlockedApps = { blockedAppsOpen = true },
                             onOpenLegal = { legalKind = it },
-                            soundOn = Prefs.soundOn(ctx),
+                            soundOn = soundOn,
                             onSoundChange = { on ->
+                                soundOn = on
                                 Prefs.setSoundOn(ctx, on)
                                 // تست فوری صدا
                                 if (on) Feedback.sessionFinished(ctx)
                             },
-                            vibrateOn = Prefs.vibrateOn(ctx),
+                            vibrateOn = vibrateOn,
                             onVibrateChange = { on ->
+                                vibrateOn = on
                                 Prefs.setVibrateOn(ctx, on)
                                 if (on) Feedback.vibrate(ctx)
                             },
-                            reminderOn = Prefs.reminderOn(ctx),
+                            reminderOn = reminderOn,
                             onReminderChange = { on ->
+                                reminderOn = on
                                 Prefs.setReminderOn(ctx, on)
                                 if (on) {
-                                    ReminderScheduler.schedule(
-                                        ctx, Prefs.reminderHour(ctx), Prefs.reminderMinute(ctx)
-                                    )
+                                    ReminderScheduler.schedule(ctx, reminderHourS, reminderMinuteS)
                                     onRequestNotifications()
                                 } else {
                                     ReminderScheduler.cancel(ctx)
                                 }
                             },
-                            reminderHour = Prefs.reminderHour(ctx),
-                            reminderMinute = Prefs.reminderMinute(ctx),
+                            reminderHour = reminderHourS,
+                            reminderMinute = reminderMinuteS,
                             onReminderTimeChange = { h, m ->
+                                reminderHourS = h
+                                reminderMinuteS = m
                                 Prefs.setReminderHour(ctx, h)
                                 Prefs.setReminderMinute(ctx, m)
-                                if (Prefs.reminderOn(ctx)) {
+                                if (reminderOn) {
                                     ReminderScheduler.schedule(ctx, h, m)
                                 }
                             },
-                            showActive = Prefs.showActiveCount(ctx),
-                            onShowActiveChange = { Prefs.setShowActiveCount(ctx, it) },
+                            showActive = showActive,
+                            onShowActiveChange = { on ->
+                                showActive = on
+                                Prefs.setShowActiveCount(ctx, on)
+                            },
                             versionName = appVersion(ctx),
                             onExport = { exportReport(ctx, store) },
                             onDeleteAll = {

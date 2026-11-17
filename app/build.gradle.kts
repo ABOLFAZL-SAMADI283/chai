@@ -12,8 +12,8 @@ android {
         applicationId = "ir.chai.focus"
         minSdk = 24
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.2"
+        versionCode = 5
+        versionName = "1.3"
         resourceConfigurations += listOf("fa", "en")
 
         // TODO(ads): وقتی شبکهٔ تبلیغ انتخاب شد، این placeholderها و dependency تپسل فعال می‌شوند.

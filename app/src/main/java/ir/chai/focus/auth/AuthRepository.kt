@@ -135,7 +135,7 @@ class AuthRepository(private val context: Context) {
             )
             // ۴۰۹ = این سشن قبلاً فرستاده شده → عملاً موفق
             if (res.first || res.second.contains("23505")) Result.success(sessions.length())
-            else Result.failure(Exception(res.second))
+            else Result.failure(Exception(friendly(res.second)))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -145,7 +145,7 @@ class AuthRepository(private val context: Context) {
     suspend fun league(): Result<String> = withContext(Dispatchers.IO) {
         try {
             val res = request("rest/v1/rpc/weekly_league", "POST", "{}", authed = true)
-            if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+            if (res.first) Result.success(res.second) else Result.failure(Exception(friendly(res.second)))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -155,7 +155,7 @@ class AuthRepository(private val context: Context) {
     suspend fun myDuels(): Result<String> = withContext(Dispatchers.IO) {
         try {
             val res = request("rest/v1/rpc/my_duels", "POST", "{}", authed = true)
-            if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+            if (res.first) Result.success(res.second) else Result.failure(Exception(friendly(res.second)))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -170,7 +170,7 @@ class AuthRepository(private val context: Context) {
                     .put("p_duration_min", minutes)
                     .toString()
                 val res = request("rest/v1/rpc/create_duel", "POST", body, authed = true)
-                if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+                if (res.first) Result.success(res.second) else Result.failure(Exception(friendly(res.second)))
             } catch (e: Exception) {
                 Result.failure(e)
             }
@@ -180,7 +180,7 @@ class AuthRepository(private val context: Context) {
     suspend fun dailyChallenge(): Result<String> = withContext(Dispatchers.IO) {
         try {
             val res = request("rest/v1/rpc/daily_challenge", "POST", "{}", authed = false)
-            if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+            if (res.first) Result.success(res.second) else Result.failure(Exception(friendly(res.second)))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -196,7 +196,7 @@ class AuthRepository(private val context: Context) {
                     .toString()
                 val res = request("rest/v1/rpc/join_daily_challenge", "POST", body, authed = true)
                 if (res.first) Result.success(res.second.trim().toIntOrNull() ?: 0)
-                else Result.failure(Exception(res.second))
+                else Result.failure(Exception(friendly(res.second)))
             } catch (e: Exception) {
                 Result.failure(e)
             }
@@ -216,7 +216,7 @@ class AuthRepository(private val context: Context) {
     suspend fun refreshFunctionRoutes(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val res = request("rest/v1/function_routes?select=name,slug", "GET", "", authed = false)
-            if (!res.first) return@withContext Result.failure(Exception(res.second))
+            if (!res.first) return@withContext Result.failure(Exception(friendly(res.second)))
             val arr = org.json.JSONArray(res.second)
             val e = prefs.edit()
             for (i in 0 until arr.length()) {
@@ -235,7 +235,7 @@ class AuthRepository(private val context: Context) {
         try {
             val body = JSONObject().put("p_anon", anonId).put("p_goal", goal).toString()
             val res = request("rest/v1/rpc/log_visit", "POST", body, authed = false)
-            if (res.first) Result.success(Unit) else Result.failure(Exception(res.second))
+            if (res.first) Result.success(Unit) else Result.failure(Exception(friendly(res.second)))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -245,7 +245,7 @@ class AuthRepository(private val context: Context) {
     suspend fun activeCount(): Result<ActiveCount> = withContext(Dispatchers.IO) {
         try {
             val res = request("rest/v1/rpc/active_count", "POST", "{}", authed = false)
-            if (!res.first) return@withContext Result.failure(Exception(res.second))
+            if (!res.first) return@withContext Result.failure(Exception(friendly(res.second)))
             // نکتهٔ مهم: RPCهایی که table برمی‌گردانند آرایهٔ JSON می‌دهند، نه آبجکت
             val arr = JSONArray(res.second)
             val o = arr.optJSONObject(0)
@@ -271,19 +271,31 @@ class AuthRepository(private val context: Context) {
     suspend fun leaderboard(): Result<String> = withContext(Dispatchers.IO) {
         try {
             val res = request("rest/v1/rpc/weekly_league", "POST", "{}", authed = true)
-            if (res.first) Result.success(res.second) else Result.failure(Exception(res.second))
+            if (res.first) Result.success(res.second) else Result.failure(Exception(friendly(res.second)))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    private fun failure(raw: String): Result<Nothing> {
-        val msg = try {
-            JSONObject(raw).optString("error", "خطای نامشخص")
+    /**
+     * پیام خطای خوانا برای کاربر — هرگز JSON یا کد خام نشان نمی‌دهیم.
+     * از فیلدهای error/message/hint/details پیام‌های فارسیِ خود سرور را بیرون می‌کشد.
+     */
+    private fun friendly(raw: String): String {
+        return try {
+            val o = JSONObject(raw)
+            listOf("error", "message", "hint", "details")
+                .firstNotNullOfOrNull { f ->
+                    o.optString(f).takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+                } ?: "ارتباط با سرور برقرار نشد"
         } catch (e: Exception) {
-            "ارتباط با سرور برقرار نشد"
+            if (raw.isNotBlank() && raw.length <= 140 && !raw.startsWith("{")) raw
+            else "ارتباط با سرور برقرار نشد"
         }
-        return Result.failure(Exception(msg))
+    }
+
+    private fun failure(raw: String): Result<Nothing> {
+        return Result.failure(Exception(friendly(raw)))
     }
 
     private fun request(

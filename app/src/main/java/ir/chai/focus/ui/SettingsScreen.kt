@@ -1,7 +1,10 @@
 package ir.chai.focus.ui
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.chai.focus.PermState
@@ -48,7 +52,7 @@ object About {
     const val DEVELOPER = "ابوالفضل صمدی"
     const val FROM = "اهل تهران"
     const val BORN = "متولد ۱۳۹۲"
-    const val VERSION = "نسخهٔ ۱.۱"
+    const val VERSION = "نسخهٔ ۱.۲"
     const val NOTE = "سازندهٔ «چای» — اپ تمرکز برای فارسی‌زبانان."
 }
 
@@ -115,7 +119,7 @@ fun SettingsScreen(
 
         // ── ظاهر ──
         item {
-            ChaiCard {
+            ChaiCard(index = 0) {
                 Text("ظاهر برنامه", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -135,7 +139,7 @@ fun SettingsScreen(
 
         // ── تمرکز ──
         item {
-            ChaiCard {
+            ChaiCard(index = 1) {
                 Text("تمرکز", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(8.dp))
                 Text("مدت پیش‌فرض", style = MaterialTheme.typography.bodyMedium, color = Chai.Text)
@@ -173,7 +177,7 @@ fun SettingsScreen(
 
         // ── داده‌ها ──
         item {
-            ChaiCard {
+            ChaiCard(index = 2) {
                 Text("داده‌ها", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(6.dp))
                 MenuRow("خروجی گزارش تمرکز", "اشتراک‌گذاری خلاصهٔ آمار", onClick = onExport)
@@ -188,7 +192,7 @@ fun SettingsScreen(
 
         // ── دربارهٔ سازنده ──
         item {
-            ChaiCard {
+            ChaiCard(index = 3) {
                 Text("دربارهٔ سازنده", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -226,7 +230,7 @@ fun SettingsScreen(
 
         // ── سایر ──
         item {
-            ChaiCard {
+            ChaiCard(index = 4) {
                 MenuRow("قوانین و مقررات", "شرایط استفاده از سرویس", onClick = { onOpenLegal(LegalKind.TERMS) })
                 MenuRow("سیاست حریم خصوصی", "چه داده‌ای جمع می‌کنیم", onClick = { onOpenLegal(LegalKind.PRIVACY) })
                 MenuRow("نسخهٔ برنامه", versionName, onClick = {})
@@ -313,11 +317,20 @@ private fun ThemeChip(
 
 @Composable
 fun SmallChip(text: String, selected: Boolean, onClick: () -> Unit) {
+    // بازخورد لمسی: چیپ هنگام فشردن نرم کوچک می‌شود
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.93f else 1f,
+        animationSpec = androidx.compose.animation.core.spring(stiffness = 500f),
+        label = "chipScale"
+    )
     Box(
         Modifier
+            .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(RoundedCornerShape(999.dp))
             .background(if (selected) Chai.Primary else Chai.Milk)
-            .clickable { onClick() }
+            .clickable(interactionSource = interaction, indication = null) { onClick() }
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Text(

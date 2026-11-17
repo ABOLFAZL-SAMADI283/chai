@@ -286,6 +286,7 @@ fun LoginScreen(
                 onValueChange = { username = it },
                 label = { Text("نام کاربری") },
                 singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Chai.Text),
                 isError = nameAvailable == false,
                 supportingText = {
                     when {
@@ -307,6 +308,7 @@ fun LoginScreen(
                     onValueChange = { nickname = it },
                     label = { Text("نام نمایشی (اختیاری)") },
                     singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Chai.Text),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -336,6 +338,7 @@ fun LoginScreen(
                     onValueChange = { code = it.uppercase() },
                     label = { Text("کد بازیابی") },
                     singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = Chai.Text),
                     visualTransformation = if (showCode) androidx.compose.ui.text.input.VisualTransformation.None
                     else androidx.compose.ui.text.input.PasswordVisualTransformation(),
                     trailingIcon = {

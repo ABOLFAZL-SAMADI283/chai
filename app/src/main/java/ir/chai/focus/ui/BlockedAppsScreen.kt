@@ -129,6 +129,7 @@ fun BlockedAppsScreen(
                 label = { Text("جست‌وجوی اپ") },
                 singleLine = true,
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Chai.Text),
                 modifier = Modifier.fillMaxWidth()
             )
         }

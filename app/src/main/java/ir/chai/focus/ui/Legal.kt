@@ -253,7 +253,7 @@ fun LegalScreen(
 
         item {
             Text(
-                "آخرین به‌روزرسانی: ۱۴ آبان ۱۴۰۵ · نسخهٔ ۱.۱",
+                "آخرین به‌روزرسانی: ۲۶ آبان ۱۴۰۵ · نسخهٔ ۱.۳",
                 style = MaterialTheme.typography.bodySmall,
                 color = Chai.Text2,
                 modifier = Modifier.fillMaxWidth()
