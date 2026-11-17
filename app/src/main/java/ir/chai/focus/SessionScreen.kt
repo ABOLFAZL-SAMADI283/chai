@@ -410,32 +410,33 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
-            val left = w * 0.22f
-            val right = w * 0.72f
-            val top = h * 0.26f
-            val bottom = h * 0.86f
-            val inset = (right - left) * 0.12f
-            val cx = (left + right) / 2f          // مرکز افقی لیوان
+            // لیوان دقیقاً وسط کادر (بدون آفست برای دستگیره) — مثل موکاپ تأییدشده
+            val left = w * 0.235f
+            val right = w * 0.765f
+            val top = h * 0.267f
+            val bottom = h * 0.733f
+            val inset = (right - left) * 0.10f
+            val cx = (left + right) / 2f          // مرکز افقی لیوان = مرکز کادر
             val cy = (top + bottom) / 2f          // مرکز عمودی لیوان
 
-            // بدنهٔ ماگ — کاملاً متقارن حول cx
+            // بدنهٔ ماگ — باریک‌شونده با ته گرد
             val body = Path().apply {
                 moveTo(left, top)
                 lineTo(right, top)
                 lineTo(right - inset, bottom)
-                quadraticTo(cx, bottom + h * 0.035f, left + inset, bottom)
+                quadraticTo(cx, bottom + h * 0.05f, left + inset, bottom)
                 close()
             }
 
-            // دستگیره — دقیقاً هم‌ارتفاع مرکز لیوان (نه بالاتر)
+            // دستگیره — دقیقاً هم‌ارتفاع مرکز لیوان
             drawArc(
                 color = rimColor,
                 startAngle = -70f,
                 sweepAngle = 140f,
                 useCenter = false,
-                topLeft = Offset(right - w * 0.04f, cy - h * 0.13f),
-                size = Size(w * 0.26f, h * 0.26f),
-                style = Stroke(width = w * 0.028f)
+                topLeft = Offset(right - w * 0.005f, cy - h * 0.105f),
+                size = Size(w * 0.18f, h * 0.21f),
+                style = Stroke(width = w * 0.04f)
             )
 
             // سایهٔ نرم زیر ماگ (حس عمق)
@@ -492,12 +493,12 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
             drawPath(p1, color = steamColor.copy(alpha = steamAlpha), style = Stroke(width = w * 0.016f))
 
             // حلقهٔ پیشرفت — هم‌مرکز با خودِ لیوان
-            val ringR = w * 0.44f
+            val ringR = w * 0.45f
             drawCircle(
                 color = Chai.Soft,
                 radius = ringR,
                 center = Offset(cx, cy),
-                style = Stroke(width = w * 0.018f)
+                style = Stroke(width = w * 0.02f)
             )
             drawArc(
                 color = Chai.Primary,
@@ -506,18 +507,18 @@ fun TeaCup(progress: Float, remainingSec: Int, modifier: Modifier = Modifier) {
                 useCenter = false,
                 topLeft = Offset(cx - ringR, cy - ringR),
                 size = Size(ringR * 2, ringR * 2),
-                style = Stroke(width = w * 0.018f)
+                style = Stroke(width = w * 0.02f)
             )
         }
 
-        // تایمر: دقیقاً داخل بدنهٔ لیوان (نه وسط کادر)
-        // مرکز لیوان: افقی ۴۷٪ عرض، عمودی ۵۶٪ ارتفاع ⇒ حدود ۷dp چپ و ۲۱dp پایین
+        // تایمر: مرکز رقم‌ها ≈ ۶۲٪ ارتفاع کادر (وسط سطح چای) — مثل موکاپ تأییدشده
+        // لیوان الان دقیقاً وسط کانواس است (۵۰٪/۵۰٪) ⇒ فقط ۱۲٪ پایین‌تر (۲۳۰dp × ۱۲٪ ≈ ۲۸dp)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .offset(x = (-7).dp, y = 21.dp)
+                .offset(x = 0.dp, y = 28.dp)
         ) {
             Text(
                 TimeFmt.mmSs(remainingSec),

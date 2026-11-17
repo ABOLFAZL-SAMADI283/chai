@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>چای ۱.۳ — موکاپ فیکس‌ها</title>
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:linear-gradient(135deg,#F5EFDF 0%,#EFE6D4 100%);
+    font-family:Vazirmatn,Tahoma,sans-serif;
+    padding:36px 20px 60px;
+    color:#1C1917;
+  }
+  h1{text-align:center;font-size:30px;font-weight:900;color:#0F766E}
+  .sub{text-align:center;color:#8B5E3C;font-size:14px;margin:8px 0 34px}
+  .row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+  .shot{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .phone{
+    width:300px;height:640px;border-radius:34px;overflow:hidden;
+    background:#FBF7F0;border:9px solid #1C1917;position:relative;
+    box-shadow:0 18px 44px rgba(28,25,23,.18);
+  }
+  .cap{font-size:14.5px;font-weight:800;color:#0F766E}
+  .tag{
+    display:inline-block;font-size:11px;font-weight:800;color:#fff;background:#0F766E;
+    border-radius:999px;padding:4px 10px;margin-bottom:6px
+  }
+  .tag.fix{background:#D4A017}
+  .screen{height:100%;padding:18px 16px;display:flex;flex-direction:column;overflow:hidden}
+
+  /* ── اجزای مشترک ── */
+  .card{background:#fff;border:1px solid #EDE4D3;border-radius:18px;padding:13px;box-shadow:0 2px 10px rgba(139,94,60,.06)}
+  .chip{display:inline-block;border-radius:999px;padding:6px 12px;font-size:11.5px;background:#F5EFDF;color:#1C1917;margin:2px}
+  .chip.on{background:#0F766E;color:#fff;font-weight:700}
+  .switch{width:40px;height:22px;border-radius:999px;background:#0F766E;position:relative;flex-shrink:0}
+  .switch.off{background:#D6CDBD}
+  .switch::after{content:'';position:absolute;top:2px;width:18px;height:18px;border-radius:50%;background:#fff}
+  .switch::after{right:2px}
+  .switch.off::after{right:20px}
+  .field{background:#fff;border:1.6px solid #D6CDBD;border-radius:14px;padding:11px 13px;font-size:13px;color:#1C1917}
+  .field .lbl{font-size:10.5px;color:#78716C;position:relative;top:-1px}
+  .btn{background:#0F766E;color:#fff;border-radius:14px;padding:13px;text-align:center;font-weight:800;font-size:14.5px}
+  .btn.sec{background:transparent;color:#78716C;font-weight:600;padding:9px}
+  .err{color:#DC2626;font-size:12px;line-height:1.9}
+
+  /* ── ورود ── */
+  .logo{width:84px;height:84px;margin:6px auto 8px;position:relative}
+  .logo .cup{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:58px;height:52px;background:#F5EFDF;border:5px solid #8B5E3C;border-radius:4px 4px 14px 14px;overflow:hidden}
+  .logo .tea{position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(#9C6A42,#7A4E2E)}
+  .logo .handle{position:absolute;right:2px;top:12px;width:16px;height:24px;border:5px solid #8B5E3C;border-left:none;border-radius:0 10px 10px 0}
+  .logo .steam{position:absolute;top:-4px;left:50%;width:3px;height:14px;background:#C9BBA6;border-radius:3px;transform:translateX(-50%)}
+  .logo .steam.s1{margin-left:-12px;animation:steam 2.6s ease-in-out infinite}
+  .logo .steam.s2{margin-left:10px;animation:steam 2.6s ease-in-out infinite .7s}
+  @keyframes steam{0%,100%{opacity:.35;transform:translate(-50%,2px)}50%{opacity:.9;transform:translate(-50%,-4px)}}
+
+  /* ── تنظیمات ── */
+  .row-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px dashed #EDE4D3}
+  .row-item:last-child{border-bottom:none}
+  .rt{font-size:13px;font-weight:700}
+  .rs{font-size:10.5px;color:#A8A29E;margin-top:2px}
+  .pulse{animation:enter .8s cubic-bezier(.2,.8,.3,1.1) both}
+  @keyframes enter{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.25s}.d4{animation-delay:.35s}
+
+  /* ── لیگ ── */
+  .podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin:6px 0 10px}
+  .pod{width:64px;border-radius:10px 10px 0 0;background:#0F766E;color:#fff;text-align:center;padding-top:8px;font-size:10.5px}
+  .pod span{display:block;font-size:16px}
+  .lr{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed #EDE4D3;font-size:12px}
+  .lr .av{width:30px;height:30px;border-radius:50%;background:#F5EFDF;display:flex;align-items:center;justify-content:center}
+  .lr b{margin-right:auto}
+  .sc{color:#0F766E;font-weight:800}
+  .balloon{background:#0F766E;color:#fff;border-radius:14px;padding:9px 12px;font-size:11.5px;text-align:center;margin-top:10px}
+
+  /* ── جلسه ── */
+  .focus{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+  .bigcup{width:160px;height:160px;position:relative}
+  .timer{position:absolute;left:0;right:0;top:62%;transform:translateY(-50%);text-align:center;color:#FBF7F0;font-weight:900;font-size:17px;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+  .timerSub{position:absolute;left:0;right:0;top:73%;transform:translateY(-50%);text-align:center;color:#F5EFDF;font-size:8.5px;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+  .pill{background:#E7F5F2;color:#0F766E;border-radius:999px;padding:7px 14px;font-size:11px;font-weight:700;width:fit-content;max-width:100%;margin:0 auto;line-height:1.7;text-align:center}
+</style>
+</head>
+<body>
+<h1>چای ۱.۳ ☕</h1>
+<div class="sub">موکاپ فیکس‌ها و قشنگ‌سازی‌ها — هر تگ زرد یعنی «درست شد»</div>
+
+<div class="row">
+
+  <!-- ── ورود ── -->
+  <div class="shot">
+    <span class="tag fix">متن تایپی سیاه · قوانین داخل اپ · انیمیشن ورود</span>
+    <div class="phone"><div class="screen">
+      <div class="logo">
+        <div class="steam s1"></div><div class="steam s2"></div>
+        <div class="cup"><div class="tea"></div></div>
+        <div class="handle"></div>
+      </div>
+      <div style="text-align:center;font-weight:900;color:#0F766E;font-size:19px">چای</div>
+      <div style="text-align:center;font-size:11px;color:#78716C;margin-bottom:12px">۳۰ دقیقه تمرکز، یک ماگ چای</div>
+      <div class="field pulse d1"><div class="lbl">نام کاربری</div>abolfazl</div>
+      <div style="height:8px"></div>
+      <div class="field pulse d2"><div class="lbl">کد بازیابی</div>CHAI-8X2K</div>
+      <div style="height:12px"></div>
+      <div class="btn pulse d3">ورود</div>
+      <div class="btn sec">فعلاً بدون حساب ادامه می‌دم</div>
+      <div style="margin-top:auto;font-size:10.5px;color:#78716C;text-align:center;line-height:2">
+        با ساخت حساب،
+        <span style="color:#0F766E;font-weight:700">قوانین</span> و
+        <span style="color:#0F766E;font-weight:700">سیاست حریم خصوصی</span>
+        را می‌پذیرید.<br><span style="font-size:9.5px;color:#A8A29E">← داخل خود اپ باز می‌شوند</span>
+      </div>
+    </div></div>
+    <div class="cap">صفحهٔ ورود</div>
+  </div>
+
+  <!-- ── تنظیمات ── -->
+  <div class="shot">
+    <span class="tag fix">کلیدها الان زنده‌اند · ورود پله‌ای · افکت لمسی</span>
+    <div class="phone"><div class="screen">
+      <div style="font-size:16px;font-weight:800;margin-bottom:10px">⚙️ تنظیمات</div>
+      <div class="card pulse d1">
+        <div class="rt" style="margin-bottom:6px">ظاهر برنامه</div>
+        <span class="chip on">☀️ روشن</span><span class="chip">🌙 تیره</span><span class="chip">🌗 سیستم</span>
+        <div class="row-item"><div><div class="rt" style="font-size:12.5px">نمایش شمارندهٔ فعال</div><div class="rs">«همین الان N نفر در حال تمرکز»</div></div><div class="switch"></div></div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="card pulse d2">
+        <div class="rt" style="margin-bottom:4px">تمرکز</div>
+        <span class="chip on">۳۰ دقیقه</span><span class="chip">۱۵</span><span class="chip">۲۵</span><span class="chip">۴۵</span><span class="chip">۶۰</span>
+        <div class="row-item"><div><div class="rt" style="font-size:12.5px">صدای پایان جلسه</div></div><div class="switch"></div></div>
+        <div class="row-item"><div><div class="rt" style="font-size:12.5px">لرزش پایان جلسه</div></div><div class="switch off"></div></div>
+        <div class="row-item"><div><div class="rt" style="font-size:12.5px">یادآور روزانه</div><div class="rs">هر روز ساعت ۸:۰۰</div></div><div class="switch"></div></div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="card pulse d3">
+        <div class="row-item"><div><div class="rt" style="font-size:12.5px">اپ‌های قفل‌شونده</div><div class="rs">انتخاب کن کدام اپ‌ها قفل شوند</div></div><div style="color:#A8A29E">‹</div></div>
+        <div class="row-item"><div><div class="rt" style="font-size:12.5px;color:#DC2626">حذف همهٔ داده‌ها</div></div><div style="color:#A8A29E">‹</div></div>
+        <div class="row-item"><div><div class="rt" style="font-size:12.5px">نسخهٔ برنامه</div></div><div style="color:#78716C;font-size:11px">1.3</div></div>
+      </div>
+    </div></div>
+    <div class="cap">تنظیمات — کلیدها واقعاً کار می‌کنند</div>
+  </div>
+
+  <!-- ── لیگ و چالش ── -->
+  <div class="shot">
+    <span class="tag fix">بدون کاربر الکی · ارور فارسی · چالش ۱ بار در روز</span>
+    <div class="phone"><div class="screen">
+      <div style="font-size:16px;font-weight:800;margin-bottom:8px">🏆 لیگ هفتگی</div>
+      <div class="podium">
+        <div class="pod" style="height:52px"><span>🥇</span>تو</div>
+        <div class="pod" style="height:66px;background:#0B5F59"><span>🥈</span>دوست ۱</div>
+        <div class="pod" style="height:44px;background:#15A092"><span>🥉</span>دوست ۲</div>
+      </div>
+      <div class="card">
+        <div class="lr"><div class="av">☕</div><div>سازنده</div><b class="sc">۲۱۰</b></div>
+        <div class="lr"><div class="av">🌊</div><div>دوست ۱</div><b class="sc">۱۸۰</b></div>
+        <div class="lr"><div class="av">🌿</div><div>دوست ۲</div><b class="sc">۱۴۵</b></div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="card">
+        <div class="rt" style="font-size:12.5px;margin-bottom:4px">🎯 چالش امروز</div>
+        <div class="rs" style="margin-bottom:8px">۳۰ دقیقه درس — امروز ۱ نفر</div>
+        <div class="btn" style="padding:10px;font-size:12.5px">شرکت کردم ✓</div>
+        <div class="err" style="margin-top:8px">⚠️ «نمی‌توانی با خودت دوئل کنی»</div>
+        <div style="font-size:9.5px;color:#A8A29E">← تمیز و فارسی، بدون کد و JSON</div>
+      </div>
+      <div class="balloon">همین الان ۳ نفر مثل تو در حال تمرکز هستند ☕</div>
+    </div></div>
+    <div class="cap">لیگ، دوئل و چالش روزانه</div>
+  </div>
+
+  <!-- ── جلسهٔ فوکوس ── -->
+  <div class="shot">
+    <span class="tag fix">چای گرادیان · سایه زیر ماگ · بخار متحرک · تایمر داخل لیوان</span>
+    <div class="phone"><div class="screen">
+      <div style="text-align:center;margin-top:14px">
+        <div style="font-size:15px;font-weight:800">📚 درس</div>
+        <div style="font-size:10.5px;color:#78716C">تا برگشت به تمرکز</div>
+      </div>
+      <div class="focus">
+        <div class="bigcup">
+          <svg viewBox="0 0 150 150" width="100%" height="100%">
+            <defs>
+              <linearGradient id="teaG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#9C6A42"/><stop offset="1" stop-color="#7A4E2E"/>
+              </linearGradient>
+              <clipPath id="cupv13"><path d="M30 40 L110 40 L102 110 C 98 118, 42 118, 38 110 Z"/></clipPath>
+            </defs>
+            <!-- حلقهٔ پیشرفت (۵۳٪ جلسه گذشته) -->
+            <circle cx="75" cy="75" r="70" fill="none" stroke="#CDE8E4" stroke-width="5"/>
+            <circle cx="75" cy="75" r="70" fill="none" stroke="#0F766E" stroke-width="5"
+              stroke-dasharray="233 440" stroke-linecap="round" transform="rotate(-90 75 75)"/>
+            <!-- دستگیره: هم‌ارتفاع مرکز بدنه -->
+            <path d="M109 62 C 128 62, 128 90, 109 90" fill="none" stroke="#8B5E3C" stroke-width="6" stroke-linecap="round"/>
+            <!-- ۱) بدنه: باریک‌شونده با ته گرد -->
+            <path d="M30 40 L110 40 L102 110 C 98 118, 42 118, 38 110 Z" fill="#F5EFDF"/>
+            <!-- ۲) چای: کلیپ‌شده به بدنه، با گرادیان (۵۳٪ جلسه گذشته) -->
+            <g clip-path="url(#cupv13)">
+              <rect x="25" y="73" width="90" height="47" fill="url(#teaG)"/>
+              <rect x="25" y="73" width="90" height="4" fill="#C08A55"/>
+            </g>
+            <!-- ۳) خط بدنه روی چای -->
+            <path d="M30 40 L110 40 L102 110 C 98 118, 42 118, 38 110 Z"
+              fill="none" stroke="#8B5E3C" stroke-width="6" stroke-linejoin="round"/>
+            <!-- براقیت -->
+            <path d="M38 46 L47 46 L41 108 L35 108 Z" fill="#FFFFFF" opacity=".4"/>
+          </svg>
+          <div class="timer">۲۳:۴۱</div>
+          <div class="timerSub">باقی‌مانده</div>
+        </div>
+        <div style="width:80%;height:7px;border-radius:99px;background:#E7F5F2;overflow:hidden">
+          <div style="width:55%;height:100%;background:#0F766E;border-radius:99px"></div>
+        </div>
+        <div style="font-size:10.5px;color:#78716C">۱۶ دقیقه گذشته</div>
+        <div class="pill">🔒 اینستاگرام، یوتیوب و ۲ اپ دیگر قفل شدند</div>
+      </div>
+      <div class="btn sec" style="margin-top:auto">لغو جلسه (استریک می‌شکند)</div>
+    </div></div>
+    <div class="cap">صفحهٔ جلسهٔ تمرکز</div>
+  </div>
+
+</div>
+</body>
+</html>

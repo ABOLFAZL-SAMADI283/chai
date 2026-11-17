@@ -52,7 +52,7 @@ object About {
     const val DEVELOPER = "ابوالفضل صمدی"
     const val FROM = "اهل تهران"
     const val BORN = "متولد ۱۳۹۲"
-    const val VERSION = "نسخهٔ ۱.۲"
+    const val VERSION = "نسخهٔ ۱.۴"
     const val NOTE = "سازندهٔ «چای» — اپ تمرکز برای فارسی‌زبانان."
 }
 
