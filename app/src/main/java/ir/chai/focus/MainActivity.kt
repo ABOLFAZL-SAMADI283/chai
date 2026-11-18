@@ -194,7 +194,12 @@ fun ChaiApp(
     // اینترنت هست اگر یا سیستم بگوید وصل است، یا سرور خودش جواب داده باشد
     // (روی بعضی شبکه‌ها پرچم VALIDATED اشتباه false است ⇒ فقط به آن تکیه نمی‌کنیم)
     val online = netOnline || serverOk
-    var activeCount by remember { mutableIntStateOf(visits?.cachedActive() ?: 0) }
+    var activeCount by remember {
+        // کش فقط اگر تازه باشد — عدد کهنه نمایش داده نمی‌شود
+        mutableIntStateOf(
+            if (visits != null && visits.activeCacheAgeMs() < 5 * 60_000L) visits.cachedActive() else 0
+        )
+    }
     var todayOpens by remember { mutableIntStateOf(visits?.todayOpens ?: 0) }
     var leagueRows by remember { mutableStateOf(emptyList<LeagueRow>()) }
     var duels by remember { mutableStateOf(emptyList<Duel>()) }
@@ -232,8 +237,9 @@ fun ChaiApp(
 
     // ── بازدید، شمارندهٔ فعال و همگام‌سازی ──
     suspend fun tick() {
-        // heartbeat: هر دقیقه یک‌بار تا «همین الان فعال» ما را نشان بدهد
-        repo.logVisit(visits?.anonId ?: "anon", "app_open")
+        val anon = visits?.anonId ?: "anon"
+        // ضربان حضور: فقط یک ردیف برای هر کاربر — با این کار شمارنده «الکی» بالا نمی‌رود
+        repo.heartbeat(anon, session?.goal?.id ?: "app_open")
             .onSuccess { serverOk = true }
             .onFailure { serverOk = false }
 
@@ -247,6 +253,11 @@ fun ChaiApp(
             .onFailure { serverOk = false }
 
         if (serverOk && repo.isLoggedIn) sync.pushPending()
+    }
+
+    // ثبت بازدید سروری — فقط یک‌بار در هر باز شدن اپ (نه هر دقیقه)
+    LaunchedEffect(Unit) {
+        repo.logVisit(visits?.anonId ?: "anon", "app_open")
     }
 
     LaunchedEffect(netOnline) {
@@ -424,7 +435,7 @@ fun ChaiApp(
                                 scope.launch {
                                     repo.joinDailyChallenge("study", 30)
                                         .onSuccess { n ->
-                                            toast = "🎯 ثبت شد — $n نفر امروز شرکت کردند"
+                                            toast = "🎯 ثبت شد — ${faNum(n)} نفر امروز شرکت کردند"
                                             scope.launch { refreshLeague() }
                                         }
                                         .onFailure { toast = it.message ?: "خطا" }
@@ -785,7 +796,7 @@ fun HomeScreen(
             )
         }
 
-        // ── شمارندهٔ زنده ──
+        // ── شمارندهٔ زنده (فقط عدد واقعی؛ اگر یکی باشی، صادقانه می‌گوید) ──
         if (showActive && activeNow > 0) {
             Spacer(Modifier.height(12.dp))
             Row(
@@ -805,13 +816,18 @@ fun HomeScreen(
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "همین الان ${faNum(activeNow)} نفر مثل تو تمرکز می‌کنن",
+                        if (activeNow > 1) "همین الان ${faNum(activeNow)} نفر مثل تو تمرکز می‌کنن"
+                        else "همین الان فقط تو بیداری و تمرکز می‌کنی",
                         style = MaterialTheme.typography.titleMedium,
                         color = Chai.Text
                     )
-                    Text("به جمع ما بپیوند", style = MaterialTheme.typography.bodySmall, color = Chai.Text2)
+                    Text(
+                        if (activeNow > 1) "به جمع ما بپیوند" else "قهوه‌ات را دم کن، بقیه هم می‌آیند",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Chai.Text2
+                    )
                 }
-                Text("👥", style = MaterialTheme.typography.titleLarge)
+                Text(if (activeNow > 1) "👥" else "☕", style = MaterialTheme.typography.titleLarge)
             }
         }
 
@@ -921,7 +937,7 @@ private fun appVersion(ctx: Context): String = try {
     val p = ctx.packageManager.getPackageInfo(ctx.packageName, 0)
     "نسخهٔ ${p.versionName}"
 } catch (e: Exception) {
-    "نسخهٔ ۲.۰"
+    "نسخهٔ ۲.۰.۱"
 }
 
 /** اشتراک‌گذاری گزارش تمرکز */

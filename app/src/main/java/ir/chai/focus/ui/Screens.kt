@@ -426,6 +426,8 @@ fun LeagueScreen(
     var duelMsg by remember { mutableStateOf<String?>(null) }
 
     val me = rows.firstOrNull { it.isMe }
+    // نام هدف چالش روزانه (پارسر از قبل به فارسی ترجمه می‌کند)
+    val dailyGoalLabel = daily?.goal?.takeIf { it.isNotBlank() } ?: "تمرکز"
     val nextLeague = when (myLeague.lowercase()) {
         "bronze" -> "silver"
         "silver" -> "gold"
@@ -492,7 +494,7 @@ fun LeagueScreen(
                         color = Chai.OnHero
                     )
                 }
-                if (nextLeague != myLeague.lowercase()) {
+                if (nextLeague != myLeague.lowercase() && myLeague.lowercase() != "platinum") {
                     Spacer(Modifier.height(14.dp))
                     Box(
                         Modifier
@@ -532,10 +534,18 @@ fun LeagueScreen(
                         color = Chai.Text2
                     )
                 } else {
-                    rows.filter { !it.isMe }.take(9).forEach { LeagueRowItem(it) }
+                    if (rows.size < 3) {
+                        Text(
+                            "تازه شروع شده — با هر جلسه بالا می‌روی",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Chai.Text2
+                        )
+                        Spacer(Modifier.height(6.dp))
+                    }
+                    rows.take(10).forEach { LeagueRowItem(it) }
                     if (rows.size > 10) {
                         Text(
-                            "… و ${rows.size - 10} نفر دیگر",
+                            "و ${faNum(rows.size - 10)} نفر دیگر…",
                             style = MaterialTheme.typography.labelSmall,
                             color = Chai.Text2
                         )
@@ -544,8 +554,8 @@ fun LeagueScreen(
             }
         }
 
-        // ── جای من ──
-        if (me != null) {
+        // ── جای من (اگر بیرون از ۱۰ نفر اول بود) ──
+        if (me != null && me.rank > 10) {
             item {
                 Column(
                     Modifier
@@ -583,7 +593,7 @@ fun LeagueScreen(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                "${d.hostName} ⚔️ ${d.guestName} — ${d.durationMin} دقیقه",
+                                "${d.hostName} ⚔️ ${d.guestName} — ${faNum(d.durationMin)} دقیقه",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Chai.Text,
                                 modifier = Modifier.weight(1f)
@@ -613,12 +623,12 @@ fun LeagueScreen(
                 Spacer(Modifier.height(4.dp))
                 if (daily != null) {
                     Text(
-                        "${daily.goal} — ${daily.durationMin} دقیقه",
+                        "${dailyGoalLabel} — ${faNum(daily.durationMin)} دقیقه",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Chai.Text
                     )
                     Text(
-                        "${daily.participants} نفر امروز شرکت کردند",
+                        "${faNum(daily.participants)} نفر امروز شرکت کردند",
                         style = MaterialTheme.typography.bodySmall,
                         color = Chai.Text2
                     )
@@ -657,6 +667,8 @@ fun LeagueScreen(
                         label = { Text("نام کاربری یا نام نمایشی دوستت") },
                         singleLine = true,
                         textStyle = MaterialTheme.typography.bodyLarge.copy(color = Chai.Text),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = chaiFieldColors(),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(10.dp))
@@ -664,7 +676,7 @@ fun LeagueScreen(
                     Spacer(Modifier.height(6.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(15, 30, 45, 60).forEach { m ->
-                            SmallChip(text = "$m دقیقه", selected = duelMinutes == m) {
+                            SmallChip(text = "${faNum(m)} دقیقه", selected = duelMinutes == m) {
                                 duelMinutes = m
                             }
                         }
@@ -686,7 +698,9 @@ fun LeagueScreen(
                             duelMsg = "نام دوستت را بنویس"
                         } else {
                             onCreateDuel(duelName.trim(), duelMinutes)
-                            duelMsg = "⏳ در حال ارسال… نتیجه با پیام بالا اعلام می‌شود"
+                            showDuel = false
+                            duelName = ""
+                            duelMsg = null
                         }
                     }
                 ) { Text("بفرست", color = Chai.Primary) }
@@ -712,7 +726,7 @@ private fun LeagueRowItem(r: LeagueRow) {
     ) {
         Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
             Text(
-                "${r.rank}",
+                faNum(r.rank),
                 style = MaterialTheme.typography.bodyMedium,
                 color = rankColor,
                 fontWeight = FontWeight.Bold
@@ -737,17 +751,24 @@ private fun LeagueRowItem(r: LeagueRow) {
                 fontWeight = if (r.isMe) FontWeight.Bold else FontWeight.Normal
             )
             Text(
-                "${TimeFmt.humanHours(r.minutes * 60)} · ${r.streak} روز",
+                "${TimeFmt.humanHours(r.minutes * 60)} · ${faNum(r.streak)} روز",
                 style = MaterialTheme.typography.bodySmall,
                 color = Chai.Text2
             )
         }
-        Text(
-            "${r.score}",
-            style = MaterialTheme.typography.titleMedium,
-            color = if (r.isMe) Chai.Primary else Chai.Text,
-            fontWeight = FontWeight.Bold
-        )
+        Column(horizontalAlignment = androidx.compose.ui.Alignment.End) {
+            Text(
+                faNum(r.score),
+                style = MaterialTheme.typography.titleMedium,
+                color = if (r.isMe) Chai.Primary else Chai.Text,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "دقیقه",
+                style = MaterialTheme.typography.labelSmall,
+                color = Chai.Text2
+            )
+        }
     }
 }
 
@@ -786,6 +807,8 @@ fun ProfileScreen(
     onLogin: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var askLogout by remember { mutableStateOf(false) }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
@@ -927,7 +950,7 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp))
                     .background(Chai.Surface)
-                    .clickable { onLogout() }
+                    .clickable { askLogout = true }
                     .padding(horizontal = 14.dp, vertical = 13.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -959,6 +982,31 @@ fun ProfileScreen(
                 textAlign = TextAlign.Center
             )
         }
+    }
+
+    // ── تأیید خروج از حساب ──
+    if (askLogout) {
+        AlertDialog(
+            onDismissRequest = { askLogout = false },
+            containerColor = Chai.Surface,
+            title = { Text("از حساب خارج شوی؟", color = Chai.Text) },
+            text = {
+                Text(
+                    "حسابت از این گوشی خارج می‌شود. جلسات و آمار تمرکزت روی همین گوشی می‌ماند، " +
+                        "و با کد بازیابی می‌توانی دوباره وارد شوی.",
+                    color = Chai.Text
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    askLogout = false
+                    onLogout()
+                }) { Text("بله، خارج شو", color = Chai.Danger) }
+            },
+            dismissButton = {
+                TextButton(onClick = { askLogout = false }) { Text("بمان") }
+            }
+        )
     }
 }
 

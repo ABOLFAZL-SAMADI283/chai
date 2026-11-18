@@ -58,7 +58,7 @@ object About {
     const val DEVELOPER = "ابوالفضل صمدی"
     const val FROM = "اهل تهران"
     const val BORN = "متولد ۱۳۹۲"
-    const val VERSION = "نسخهٔ ۲.۰"
+    const val VERSION = "نسخهٔ ۲.۰.۱"
     const val NOTE = "سازندهٔ «چای» — اپ تمرکز برای فارسی‌زبانان."
 }
 
@@ -88,7 +88,7 @@ fun SettingsScreen(
     onReminderTimeChange: (Int, Int) -> Unit = { _, _ -> },
     showActive: Boolean = true,
     onShowActiveChange: (Boolean) -> Unit = {},
-    versionName: String = "نسخهٔ ۲.۰",
+    versionName: String = "نسخهٔ ۲.۰.۱",
     onExport: () -> Unit = {},
     onDeleteAll: () -> Unit = {},
     modifier: Modifier = Modifier

@@ -45,8 +45,19 @@ class AuthRepository(private val context: Context) {
             .apply()
     }
 
+    /**
+     * خروج از حساب: همهٔ اطلاعات نشست پاک می‌شود (نه فقط توکن)،
+     * وگرنه صفحه دوباره همان نام و آواتار قبلی را نشان می‌دهد و به نظر می‌رسد خروج کار نکرده.
+     * کد بازیابی عمداً می‌ماند تا کاربر بتواند دوباره وارد شود.
+     */
     fun clearSession() {
-        prefs.edit().remove("access_token").remove("user_id").apply()
+        prefs.edit()
+            .remove("access_token")
+            .remove("user_id")
+            .remove("username")
+            .remove("nickname")
+            .remove("avatar")
+            .apply()
     }
 
     /**
@@ -230,11 +241,26 @@ class AuthRepository(private val context: Context) {
         }
     }
 
-    /** ثبت بازدید + heartbeat (برای شمارندهٔ «همین الان چند نفر فعال هستند») */
+    /** ثبت بازدید (فقط هنگام باز کردن اپ — یک‌بار) */
     suspend fun logVisit(anonId: String, goal: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val body = JSONObject().put("p_anon", anonId).put("p_goal", goal).toString()
             val res = request("rest/v1/rpc/log_visit", "POST", body, authed = false)
+            if (res.first) Result.success(Unit) else Result.failure(Exception(friendly(res.second)))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * ضربان حضور — هر دقیقه یک‌بار.
+     * این تابع بازدید را زیاد نمی‌کند و برای هر کاربر فقط یک ردیف نگه می‌دارد،
+     * پس شمارندهٔ «همین الان» آدم‌های واقعی را می‌شمارد نه تعداد باز شدن‌ها.
+     */
+    suspend fun heartbeat(anonId: String, goal: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val body = JSONObject().put("p_anon", anonId).put("p_goal", goal).toString()
+            val res = request("rest/v1/rpc/heartbeat", "POST", body, authed = false)
             if (res.first) Result.success(Unit) else Result.failure(Exception(friendly(res.second)))
         } catch (e: Exception) {
             Result.failure(e)

@@ -3,6 +3,7 @@ package ir.chai.focus.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /** ۴ بخش اپ */
 enum class ChaiTab(
@@ -51,8 +53,9 @@ enum class ChaiTab(
 }
 
 /**
- * نوار پایین شناور (کپسولی) — هم‌سبک با موکاپ تأییدشده.
- * تب فعال یک کاشی سبز نرم می‌گیرد و آیکونش پر می‌شود.
+ * نوار پایین — دقیقاً مثل موکاپ تأییدشده:
+ * کپسول شناور ۶۴dp با گوشهٔ ۲۴dp، خط نازک دور آن، سایهٔ نرم،
+ * و تب فعال با کاشی سبز نرم + آیکون پر و رنگ سبز چای.
  */
 @Composable
 fun ChaiBottomBar(
@@ -69,19 +72,20 @@ fun ChaiBottomBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(14.dp, RoundedCornerShape(24.dp))
+                .height(64.dp)
+                .shadow(12.dp, RoundedCornerShape(24.dp), clip = false)
                 .clip(RoundedCornerShape(24.dp))
-                .background(Chai.Surface)
-                .padding(6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .background(Chai.Surface.copy(alpha = 0.97f))
+                .border(1.dp, Chai.Line, RoundedCornerShape(24.dp))
+                .padding(horizontal = 6.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
             ChaiTab.entries.forEach { tab ->
                 TabItem(
                     tab = tab,
                     active = tab == current,
-                    onClick = { onSelect(tab) },
-                    modifier = Modifier.weight(1f)
+                    onClick = { onSelect(tab) }
                 )
             }
         }
@@ -92,39 +96,38 @@ fun ChaiBottomBar(
 private fun TabItem(
     tab: ChaiTab,
     active: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
     val tint by animateColorAsState(
         targetValue = if (active) Chai.Primary else Chai.Text2,
-        animationSpec = tween(200),
+        animationSpec = tween(180),
         label = "tabTint"
     )
     val bg by animateColorAsState(
         targetValue = if (active) Chai.Soft else Color.Transparent,
-        animationSpec = tween(200),
+        animationSpec = tween(180),
         label = "tabBg"
     )
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = Modifier
             .clip(RoundedCornerShape(18.dp))
             .background(bg)
             .clickable { onClick() }
-            .padding(vertical = 8.dp)
+            .padding(horizontal = 13.dp, vertical = 8.dp)
     ) {
         Icon(
             imageVector = if (active) tab.filled else tab.outlined,
             contentDescription = tab.title,
             tint = tint,
-            modifier = Modifier.size(21.dp)
+            modifier = Modifier.size(20.dp)
         )
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(3.dp))
         Text(
             text = tab.title,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+            fontWeight = FontWeight.Bold,
             color = tint
         )
     }

@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ir.chai.focus.ui.Chai
+import ir.chai.focus.ui.chaiFieldColors
 import ir.chai.focus.ui.ChaiLogo
 import ir.chai.focus.ui.LegalKind
 import kotlinx.coroutines.delay
@@ -298,6 +299,7 @@ fun LoginScreen(
                     }
                 },
                 shape = RoundedCornerShape(14.dp),
+                colors = chaiFieldColors(),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -310,6 +312,7 @@ fun LoginScreen(
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = Chai.Text),
                     shape = RoundedCornerShape(14.dp),
+                    colors = chaiFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
                 if (suggestions.isNotEmpty()) {
@@ -350,6 +353,7 @@ fun LoginScreen(
                         }
                     },
                     shape = RoundedCornerShape(14.dp),
+                    colors = chaiFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
