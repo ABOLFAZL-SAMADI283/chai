@@ -23,6 +23,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +67,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import ir.chai.focus.auth.AuthRepository
@@ -74,6 +80,9 @@ import ir.chai.focus.ui.ChaiSplashScreen
 import ir.chai.focus.ui.ChaiSpring
 import ir.chai.focus.ui.ChaiFadeIn
 import ir.chai.focus.ui.ChaiFadeOut
+import ir.chai.focus.ui.ChaiCard
+import ir.chai.focus.ui.MiniStat
+import ir.chai.focus.ui.faNum
 import ir.chai.focus.ui.BlockedAppsScreen
 import ir.chai.focus.ui.LegalKind
 import ir.chai.focus.ui.LegalScreen
@@ -202,6 +211,8 @@ fun ChaiApp(
     var legalKind by remember { mutableStateOf<LegalKind?>(null) }
     var blockedAppsOpen by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
+    // با خروج از حساب یا حذف داده‌ها زیاد می‌شود تا پروفایل/تنظیمات فوراً بازخوانی شوند
+    var authTick by remember { mutableIntStateOf(0) }
 
     // ── پایش اینترنت ──
     DisposableEffect(net) {
@@ -367,6 +378,9 @@ fun ChaiApp(
                         activeNow = activeCount,
                         todayOpens = todayOpens,
                         todaySeconds = Stats.todaySeconds(sessions),
+                        sessionCount = sessions.size,
+                        streak = Stats.streakDays(sessions),
+                        nickname = repo.nickname,
                         showActive = showActive,
                         perms = perms,
                         onOpenAccessibility = { Permissions.openAccessibilitySettings(ctx) },
@@ -480,12 +494,28 @@ fun ChaiApp(
                             onDeleteAll = {
                                 store.save(emptyList())
                                 sessions = emptyList()
+                                ReminderScheduler.cancel(ctx)
                                 Prefs.wipeAll(ctx)
+                                // همهٔ stateها فوراً به پیش‌فرض برمی‌گردند (UI بدون ری‌استارت درست می‌شود)
                                 defaultMinutes = 30
+                                soundOn = true
+                                vibrateOn = true
+                                reminderOn = false
+                                reminderHourS = 8
+                                reminderMinuteS = 0
+                                showActive = true
+                                activeCount = 0
+                                todayOpens = 0
+                                leagueRows = emptyList()
+                                duels = emptyList()
+                                daily = null
+                                onThemeChange(ThemeMode.SYSTEM)
+                                authTick++
+                                settingsOpen = false
                                 toast = "همهٔ داده‌ها پاک شد"
                             }
                         )
-                    } else {
+                    } else key(authTick) {
                         ProfileScreen(
                             nickname = repo.nickname,
                             username = repo.username,
@@ -499,6 +529,7 @@ fun ChaiApp(
                             onLogin = { showLogin = true },
                             onLogout = {
                                 repo.clearSession()
+                                authTick++
                                 toast = "از حساب خارج شدی"
                             }
                         )
@@ -539,6 +570,9 @@ fun HomeScreen(
     activeNow: Int = 0,
     todayOpens: Int = 0,
     todaySeconds: Int = 0,
+    sessionCount: Int = 0,
+    streak: Int = 0,
+    nickname: String = "",
     showActive: Boolean = true,
     perms: PermState = PermState(),
     onOpenAccessibility: () -> Unit = {},
@@ -547,235 +581,334 @@ fun HomeScreen(
 ) {
     var goal by rememberSaveable { mutableStateOf(Goal.STUDY) }
     var minutes by rememberSaveable { mutableIntStateOf(defaultMinutes) }
+    // اگر مدت پیش‌فرض در تنظیمات عوض شود، همین‌جا هم‌راه می‌شود
+    LaunchedEffect(defaultMinutes) { minutes = defaultMinutes }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = 18.dp)) {
-            Spacer(Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text("سلام 👋", style = MaterialTheme.typography.titleLarge, color = Chai.Text)
-                    Text(
-                        if (todaySeconds > 0) "امروز ${TimeFmt.humanHours(todaySeconds)} تمرکز"
-                        else "امروز اولین فنجان چای توئه",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Chai.Text2
-                    )
-                }
-                GoalIcon(goal)
-            }
+    val who = nickname.trim()
 
-            // ── بنر دسترسی‌ها ──
-            PermissionBanner(
-                perms = perms,
-                onOpenAccessibility = onOpenAccessibility,
-                onOpenUsage = onOpenUsage
-            )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp)
+    ) {
+        Spacer(Modifier.height(14.dp))
 
-            // ── انگیزه ──
-            if (showActive && activeNow > 0) {
-                Spacer(Modifier.height(10.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(Chai.Soft)
-                        .padding(horizontal = 12.dp, vertical = 7.dp)
-                ) {
-                    Box(
-                        Modifier
-                            .size(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Chai.Primary)
-                    )
-                    Text(
-                        "همین الان $activeNow نفر مثل تو در حال تمرکز هستند",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Chai.Primary
-                    )
-                }
-            }
-            if (todayOpens > 0) {
-                Spacer(Modifier.height(6.dp))
+        // ── سلام + آواتار ──
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
                 Text(
-                    "امروز چای $todayOpens بار باز شده",
+                    if (who.isBlank()) "سلام 👋" else "سلام $who 👋",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Chai.Text
+                )
+                Text(
+                    if (todaySeconds > 0) "امروز ${TimeFmt.humanHours(todaySeconds)} تمرکز — عالی پیش می‌ری"
+                    else "امروز اولین فنجان چای توئه",
                     style = MaterialTheme.typography.bodySmall,
                     color = Chai.Text2
                 )
             }
-
-            Spacer(Modifier.height(14.dp))
-            // ماگ چای با تنفّس ملایم
-            val breathe = rememberInfiniteTransition(label = "breathe")
-            val pulse by breathe.animateFloat(
-                initialValue = 1f,
-                targetValue = 1.035f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(2200),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "pulse"
-            )
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(15.dp))
+                    .background(Chai.Soft),
                 contentAlignment = Alignment.Center
+            ) { Text("☕", style = MaterialTheme.typography.titleLarge) }
+        }
+
+        // ── بنر دسترسی‌ها ──
+        PermissionBanner(
+            perms = perms,
+            onOpenAccessibility = onOpenAccessibility,
+            onOpenUsage = onOpenUsage,
+            modifier = Modifier.padding(top = 12.dp)
+        )
+
+        // ── هیروی فوکوس ──
+        Spacer(Modifier.height(14.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(10.dp, RoundedCornerShape(30.dp))
+                .clip(RoundedCornerShape(30.dp))
+                .background(Chai.heroBrush)
+                .padding(horizontal = 18.dp, vertical = 18.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_chai_cup),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(150.dp)
-                        .graphicsLayer {
-                            scaleX = pulse
-                            scaleY = pulse
-                        }
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        "آماده‌ای؟",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Chai.OnHero.copy(alpha = 0.8f)
+                    )
+                    Text(
+                        "یک فنجان چای\nبرای تمرکز",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Chai.OnHero
+                    )
+                }
+                if (streak > 0) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(Color.White.copy(alpha = 0.16f))
+                            .padding(horizontal = 11.dp, vertical = 7.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🔥", style = MaterialTheme.typography.labelMedium)
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            "${faNum(streak)} روز",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Chai.OnHero
+                        )
+                    }
+                }
+            }
+
+            TeaCup(
+                progress = 0f,
+                remainingSec = 0,
+                showTimer = false,
+                modifier = Modifier
+                    .size(132.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+
+            Text(
+                "${faNum(minutes)} دقیقه · هدف: ${goal.label}",
+                style = MaterialTheme.typography.bodySmall,
+                color = Chai.OnHero.copy(alpha = 0.86f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(10.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                listOf(15, 25, 30, 45, 60).forEach { m ->
+                    HeroMinutesChip(
+                        minutes = m,
+                        selected = m == minutes,
+                        onClick = { minutes = m },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Chai.OnHero)
+                    .clickable { onStart(goal, minutes) },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "☕  شروع تمرکز",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Chai.HeroTop
                 )
             }
+        }
+
+        // ── انتخاب هدف ──
+        Spacer(Modifier.height(12.dp))
+        ChaiCard(index = 1) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("می‌خوام…", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
+                Text("هدف امروز", style = MaterialTheme.typography.bodySmall, color = Chai.Text2)
+            }
+            Spacer(Modifier.height(10.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Goal.entries.forEach { g ->
+                    GoalTile(
+                        goal = g,
+                        selected = g == goal,
+                        onClick = { goal = g },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+
+        // ── آمار امروز ──
+        Spacer(Modifier.height(12.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            MiniStat(
+                value = "${faNum(todaySeconds / 60)}′",
+                label = "امروز",
+                modifier = Modifier.weight(1f)
+            )
+            MiniStat(
+                value = faNum(streak),
+                label = "روز پیاپی",
+                modifier = Modifier.weight(1f)
+            )
+            MiniStat(
+                value = faNum(sessionCount),
+                label = "جلسه",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        if (todayOpens > 0) {
+            Spacer(Modifier.height(6.dp))
             Text(
-                "ماگ خالی — آمادهٔ پر شدن",
-                style = MaterialTheme.typography.bodySmall,
+                "امروز چای ${faNum(todayOpens)} بار باز شد",
+                style = MaterialTheme.typography.labelSmall,
                 color = Chai.Text2,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-
-            Spacer(Modifier.height(16.dp))
-            Text("می‌خوام…", style = MaterialTheme.typography.bodyMedium, color = Chai.Text2)
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
-                items(Goal.entries.size) { i ->
-                    val g = Goal.entries[i]
-                    GoalChip(g, selected = g == goal, onClick = { goal = g })
-                }
-            }
-
-            Text("مدت", style = MaterialTheme.typography.bodyMedium, color = Chai.Text2)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
-                listOf(15, 25, 30, 45, 60).forEach { m ->
-                    DurationPill(m, selected = m == minutes, onClick = { minutes = m })
-                }
-            }
-
-            Spacer(Modifier.height(6.dp))
-            Button(
-                onClick = { onStart(goal, minutes) },
-                modifier = Modifier.fillMaxWidth().height(54.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Chai.Primary)
-            ) {
-                Text("☕  بریز چای", style = MaterialTheme.typography.titleMedium)
-            }
-            Spacer(Modifier.height(12.dp))
         }
+
+        // ── شمارندهٔ زنده ──
+        if (showActive && activeNow > 0) {
+            Spacer(Modifier.height(12.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Chai.Surface)
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(Chai.Primary)
+                )
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        "همین الان ${faNum(activeNow)} نفر مثل تو تمرکز می‌کنن",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Chai.Text
+                    )
+                    Text("به جمع ما بپیوند", style = MaterialTheme.typography.bodySmall, color = Chai.Text2)
+                }
+                Text("👥", style = MaterialTheme.typography.titleLarge)
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
     }
 }
 
 @Composable
 fun GoalIcon(goal: Goal) {
-    val res = when (goal) {
-        Goal.STUDY -> R.drawable.ic_chai_goal_study
-        Goal.BOOK -> R.drawable.ic_chai_goal_book
-        Goal.WORK -> R.drawable.ic_chai_goal_work
-        Goal.GYM -> R.drawable.ic_chai_goal_gym
-        Goal.SLEEP -> R.drawable.ic_chai_goal_sleep
-    }
     Image(
-        painter = painterResource(res),
+        painter = painterResource(goalRes(goal)),
         contentDescription = goal.label,
         modifier = Modifier.size(38.dp).clip(RoundedCornerShape(19.dp))
     )
 }
 
+/** آیکون هر هدف (منبع drawable) */
+fun goalRes(goal: Goal): Int = when (goal) {
+    Goal.STUDY -> R.drawable.ic_chai_goal_study
+    Goal.BOOK -> R.drawable.ic_chai_goal_book
+    Goal.WORK -> R.drawable.ic_chai_goal_work
+    Goal.GYM -> R.drawable.ic_chai_goal_gym
+    Goal.SLEEP -> R.drawable.ic_chai_goal_sleep
+}
+
+/** کاشی هدف در صفحهٔ خانه — وقتی انتخاب شده سبز چای می‌شود */
 @Composable
-fun GoalChip(goal: Goal, selected: Boolean, onClick: () -> Unit) {
+private fun GoalTile(
+    goal: Goal,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val bg by animateColorAsState(
-        targetValue = if (selected) Chai.Primary else Chai.Surface,
-        animationSpec = tween(240),
-        label = "chipBg"
+        targetValue = if (selected) Chai.Primary else Chai.Surface2,
+        animationSpec = tween(200),
+        label = "goalTileBg"
     )
     val fg by animateColorAsState(
-        targetValue = if (selected) Color.White else Chai.Text,
-        animationSpec = tween(240),
-        label = "chipFg"
+        targetValue = if (selected) Color.White else Chai.Text2,
+        animationSpec = tween(200),
+        label = "goalTileFg"
     )
-    val scale by animateFloatAsState(
-        targetValue = if (selected) 1.04f else 1f,
-        animationSpec = ChaiSpring,
-        label = "chipScale"
-    )
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
-        modifier = Modifier
-            .scale(scale)
-            .clip(RoundedCornerShape(999.dp))
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(15.dp))
             .background(bg)
             .clickable { onClick() }
-            .padding(6.dp)
+            .padding(vertical = 9.dp, horizontal = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(
-                when (goal) {
-                    Goal.STUDY -> R.drawable.ic_chai_goal_study
-                    Goal.BOOK -> R.drawable.ic_chai_goal_book
-                    Goal.WORK -> R.drawable.ic_chai_goal_work
-                    Goal.GYM -> R.drawable.ic_chai_goal_gym
-                    Goal.SLEEP -> R.drawable.ic_chai_goal_sleep
-                }
-            ),
+            painter = painterResource(goalRes(goal)),
             contentDescription = null,
-            modifier = Modifier
-                .size(26.dp)
-                .clip(RoundedCornerShape(13.dp))
-                .graphicsLayer { alpha = if (selected) 1f else 0.85f }
+            modifier = Modifier.size(22.dp).clip(RoundedCornerShape(7.dp))
         )
+        Spacer(Modifier.height(4.dp))
         Text(
             goal.label,
-            style = MaterialTheme.typography.labelMedium,
-            color = fg
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.5.sp),
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = fg,
+            maxLines = 1
         )
     }
 }
 
+/** چیپ مدت داخل هیرو — شیشه‌ای روی سبز */
 @Composable
-fun DurationPill(minutes: Int, selected: Boolean, onClick: () -> Unit) {
+private fun HeroMinutesChip(
+    minutes: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val bg by animateColorAsState(
-        targetValue = if (selected) Chai.Primary else Chai.Surface,
-        animationSpec = tween(220),
-        label = "pillBg"
+        targetValue = if (selected) Chai.OnHero else Color.White.copy(alpha = 0.14f),
+        animationSpec = tween(200),
+        label = "heroChipBg"
     )
     val fg by animateColorAsState(
-        targetValue = if (selected) Color.White else Chai.Text,
-        animationSpec = tween(220),
-        label = "pillFg"
-    )
-    val scale by animateFloatAsState(
-        targetValue = if (selected) 1.06f else 1f,
-        animationSpec = ChaiSpring,
-        label = "pillScale"
+        targetValue = if (selected) Chai.HeroTop else Chai.OnHero,
+        animationSpec = tween(200),
+        label = "heroChipFg"
     )
     Box(
-        modifier = Modifier
-            .scale(scale)
-            .clip(RoundedCornerShape(999.dp))
+        modifier = modifier
+            .clip(RoundedCornerShape(13.dp))
             .background(bg)
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 9.dp)
+            .padding(vertical = 9.dp),
+        contentAlignment = Alignment.Center
     ) {
         Text(
-            if (minutes == 30) "۳۰ دقیقه" else ir.chai.focus.ui.faNum(minutes),
+            faNum(minutes),
             style = MaterialTheme.typography.labelMedium,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             color = fg
         )
     }
@@ -788,7 +921,7 @@ private fun appVersion(ctx: Context): String = try {
     val p = ctx.packageManager.getPackageInfo(ctx.packageName, 0)
     "نسخهٔ ${p.versionName}"
 } catch (e: Exception) {
-    "نسخهٔ ۱.۱"
+    "نسخهٔ ۲.۰"
 }
 
 /** اشتراک‌گذاری گزارش تمرکز */

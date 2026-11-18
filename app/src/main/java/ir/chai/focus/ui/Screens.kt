@@ -97,10 +97,10 @@ fun ChaiCard(
     Column(
         modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(18.dp))
-            .clip(RoundedCornerShape(18.dp))
+            .shadow(6.dp, RoundedCornerShape(26.dp))
+            .clip(RoundedCornerShape(26.dp))
             .background(Chai.Surface)
-            .padding(14.dp)
+            .padding(16.dp)
             .graphicsLayer {
                 this.alpha = alpha.value
                 translationY = dy.value
@@ -114,7 +114,7 @@ fun ProgressRing(
     progress: Float,
     modifier: Modifier = Modifier,
     strokeWidth: androidx.compose.ui.unit.Dp = 10.dp,
-    trackColor: Color = Chai.Soft,
+    trackColor: Color = Chai.Surface2,
     progressColor: Color = Chai.Primary,
     center: @Composable () -> Unit = {}
 ) {
@@ -171,21 +171,32 @@ fun StatsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("داشبورد تمرکز", style = MaterialTheme.typography.titleLarge, color = Chai.Text)
+                Column(Modifier.weight(1f)) {
+                    Text("داشبورد تمرکز", style = MaterialTheme.typography.titleLarge, color = Chai.Text)
+                    Text(
+                        "این هفته چطور پیش رفتی؟",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Chai.Text2
+                    )
+                }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier
                         .clip(RoundedCornerShape(999.dp))
                         .background(Chai.Soft)
-                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_chai_fire),
                         contentDescription = null,
                         modifier = Modifier.size(15.dp)
                     )
-                    Text("$streak روز", style = MaterialTheme.typography.labelMedium, color = Chai.Primary)
+                    Text(
+                        "${faNum(streak)} روز",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Chai.Primary
+                    )
                 }
             }
         }
@@ -201,7 +212,7 @@ fun StatsScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                "${(goalProgress * 100).toInt()}٪",
+                                "${faNum((goalProgress * 100).toInt())}٪",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Black,
                                 color = Chai.Primary
@@ -229,9 +240,9 @@ fun StatsScreen(
                 }
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MiniStat("این هفته", TimeFmt.humanHours(week.sumOf { it.second }), Modifier.weight(1f))
-                    MiniStat("جلسهٔ کامل", "$completed", Modifier.weight(1f))
-                    MiniStat("بازدید امروز", "$todayVisits", Modifier.weight(1f))
+                    MiniStat(TimeFmt.humanHours(week.sumOf { it.second }), "این هفته", Modifier.weight(1f))
+                    MiniStat(faNum(completed), "جلسهٔ کامل", Modifier.weight(1f))
+                    MiniStat(faNum(todayVisits), "بازدید امروز", Modifier.weight(1f))
                 }
             }
         }
@@ -269,8 +280,11 @@ fun StatsScreen(
                     Text("کم", style = MaterialTheme.typography.labelSmall, color = Chai.Text2)
                     Spacer(Modifier.width(4.dp))
                     listOf(
-                        Color(0xFFF3EDE3), Color(0xFFD9F2EE), Color(0xFFA5E5DC),
-                        Color(0xFF5CC9BA), Chai.Primary
+                        Chai.Milk,
+                        Chai.Soft,
+                        Chai.Primary.copy(alpha = 0.35f),
+                        Chai.Primary.copy(alpha = 0.62f),
+                        Chai.Primary
                     ).forEach { c ->
                         Box(
                             Modifier
@@ -319,8 +333,8 @@ fun StatsScreen(
                                 Column(
                                     Modifier
                                         .weight(1f)
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(Chai.Milk)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(Chai.Soft.copy(alpha = 0.55f))
                                         .padding(vertical = 10.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
@@ -347,9 +361,9 @@ fun StatsScreen(
                 Text("خلاصهٔ کل", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MiniStat("مجموع تمرکز", TimeFmt.humanHours(sessions.sumOf { it.actualSec }), Modifier.weight(1f))
-                    MiniStat("تعداد جلسه", "${sessions.size}", Modifier.weight(1f))
-                    MiniStat("کل بازدید", "$totalVisits", Modifier.weight(1f))
+                    MiniStat(TimeFmt.humanHours(sessions.sumOf { it.actualSec }), "مجموع تمرکز", Modifier.weight(1f))
+                    MiniStat(faNum(sessions.size), "تعداد جلسه", Modifier.weight(1f))
+                    MiniStat(faNum(totalVisits), "کل بازدید", Modifier.weight(1f))
                 }
             }
         }
@@ -357,14 +371,19 @@ fun StatsScreen(
 }
 
 @Composable
-private fun MiniStat(label: String, value: String, modifier: Modifier = Modifier) {
+fun MiniStat(value: String, label: String, modifier: Modifier = Modifier) {
     Column(
         modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(Chai.Milk)
-            .padding(horizontal = 10.dp, vertical = 9.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(Chai.Surface2)
+            .padding(horizontal = 11.dp, vertical = 10.dp)
     ) {
-        Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Chai.Teal)
+        Text(
+            value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Chai.Primary
+        )
         Text(label, style = MaterialTheme.typography.labelSmall, color = Chai.Text2)
     }
 }
@@ -429,65 +448,72 @@ fun LeagueScreen(
 
         // ── کارت لیگ من ──
         item {
-            ChaiCard(index = 1) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .shadow(9.dp, RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(Chai.heroBrush)
+                    .padding(16.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(Leagues.color(myLeague).copy(alpha = 0.18f)),
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(Color.White.copy(alpha = 0.14f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Filled.EmojiEvents,
                             contentDescription = null,
-                            tint = Leagues.color(myLeague),
+                            tint = Color(0xFFFFDF9E),
                             modifier = Modifier.size(26.dp)
                         )
                     }
-                    Spacer(Modifier.width(12.dp))
+                    Spacer(Modifier.width(11.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
                             "لیگ ${Leagues.label(myLeague)}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Chai.Text
+                            color = Chai.OnHero
                         )
                         Text(
-                            "امتیاز هفتگی: $myScore دقیقه",
+                            "امتیاز این هفته: ${faNum(myScore)} دقیقه",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Chai.Text2
+                            color = Chai.OnHero.copy(alpha = 0.74f)
                         )
                     }
                     Text(
-                        me?.let { "#${it.rank}" } ?: "—",
+                        me?.let { "#${faNum(it.rank)}" } ?: "—",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Black,
-                        color = Chai.Primary
+                        color = Chai.OnHero
                     )
                 }
                 if (nextLeague != myLeague.lowercase()) {
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(14.dp))
                     Box(
                         Modifier
                             .fillMaxWidth()
                             .height(8.dp)
                             .clip(RoundedCornerShape(99.dp))
-                            .background(Chai.Soft)
+                            .background(Color.White.copy(alpha = 0.16f))
                     ) {
                         Box(
                             Modifier
                                 .fillMaxWidth(progress)
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(99.dp))
-                                .background(Leagues.color(nextLeague))
+                                .background(Color(0xFF5EEAD4))
                         )
                     }
-                    Spacer(Modifier.height(6.dp))
+                    Spacer(Modifier.height(7.dp))
                     Text(
-                        "${nextThreshold - myScore} دقیقه تا لیگ ${Leagues.label(nextLeague)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Chai.Text2
+                        "${faNum((nextThreshold - myScore).coerceAtLeast(0))} دقیقه تا لیگ ${Leagues.label(nextLeague)}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Chai.OnHero.copy(alpha = 0.72f)
                     )
                 }
             }
@@ -766,69 +792,99 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    Modifier
-                        .size(92.dp)
-                        .clip(CircleShape)
-                        .background(Chai.Soft),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(avatar.ifBlank { "☕" }, style = MaterialTheme.typography.headlineMedium)
-                }
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    nickname.ifBlank { "مهمان" },
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Chai.Text
-                )
-                if (username.isNotBlank()) {
-                    Text("@$username", style = MaterialTheme.typography.bodySmall, color = Chai.Text2)
-                } else {
+            Text(
+                "حساب من",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Chai.Text,
+                modifier = Modifier.padding(start = 4.dp, top = 2.dp, bottom = 2.dp)
+            )
+        }
+
+        // ── کارت پروفایل ──
+        item {
+            ChaiCard(index = 0) {
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        Modifier
+                            .size(78.dp)
+                            .clip(RoundedCornerShape(26.dp))
+                            .background(Chai.Soft),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(avatar.ifBlank { "☕" }, style = MaterialTheme.typography.headlineMedium)
+                    }
+                    Spacer(Modifier.height(12.dp))
                     Text(
-                        "بدون حساب — داده‌ها فقط روی این دستگاه ذخیره می‌شود",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Chai.Text2
+                        nickname.ifBlank { "مهمان" },
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Chai.Text
                     )
-                }
-                Spacer(Modifier.height(10.dp))
-                if (username.isBlank()) {
-                    Button(
-                        onClick = onLogin,
-                        modifier = Modifier.fillMaxWidth().height(46.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Chai.Primary)
-                    ) { Text("ساخت حساب یا ورود") }
+                    if (username.isNotBlank()) {
+                        Text("@$username", style = MaterialTheme.typography.bodySmall, color = Chai.Text2)
+                    } else {
+                        Text(
+                            "بدون حساب — داده‌ها فقط روی این دستگاه ذخیره می‌شود",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Chai.Text2,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ProfilePill("🔥 ${faNum(bestStreak)} روز", Chai.goldSoft(0.22f), Chai.Gold)
+                        ProfilePill("☕ ${faNum(sessionCount)} جلسه", Chai.Soft, Chai.Primary)
+                    }
+                    if (username.isBlank()) {
+                        Spacer(Modifier.height(12.dp))
+                        Button(
+                            onClick = onLogin,
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Chai.Primary)
+                        ) { Text("ساخت حساب یا ورود", style = MaterialTheme.typography.titleMedium) }
+                    }
                 }
             }
         }
 
+        // ── آمار ──
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                StatCard("ساعت کل", "$totalMinutes", Modifier.weight(1f))
-                StatCard("جلسه", "$sessionCount", Modifier.weight(1f))
-                StatCard("بهترین استریک", "$bestStreak", Modifier.weight(1f), Chai.Gold2)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                MiniStat(TimeFmt.humanHours(totalMinutes * 60), "مجموع تمرکز", Modifier.weight(1f))
+                MiniStat(faNum(sessionCount), "جلسه", Modifier.weight(1f))
+                MiniStat(faNum(bestStreak), "بهترین استریک", Modifier.weight(1f))
             }
         }
 
         // ── کد بازیابی ──
         item {
-            ChaiCard {
-                Text("کد بازیابی", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "کد بازیابی فقط یک‌بار هنگام ساخت حساب نشان داده می‌شود. اگر ذخیره‌اش کرده‌ای، " +
-                        "اینجا نگهش می‌داریم؛ وگرنه باید حساب را از نو بسازی.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Chai.Text2
-                )
+            ChaiCard(index = 1) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(13.dp))
+                            .background(Chai.primarySoft(0.10f)),
+                        contentAlignment = Alignment.Center
+                    ) { Text("🔑", style = MaterialTheme.typography.titleMedium) }
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("کد بازیابی", style = MaterialTheme.typography.titleMedium, color = Chai.Text)
+                        Text(
+                            "برای ورود روی گوشی دیگر — یک‌جا نگهش دار",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Chai.Text2
+                        )
+                    }
+                }
                 Spacer(Modifier.height(10.dp))
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Chai.Milk)
-                        .padding(12.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Chai.Surface2)
+                        .padding(14.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         if (savedCode.isBlank()) "••••-••••-••••" else savedCode,
@@ -837,31 +893,69 @@ fun ProfileScreen(
                         fontWeight = FontWeight.Bold
                     )
                 }
+                if (savedCode.isBlank()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "کد بازیابی فقط یک‌بار هنگام ساخت حساب نشان داده می‌شود. " +
+                            "اگر ذخیره‌اش نکرده‌ای، باید حساب را از نو بسازی.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Chai.Text2
+                    )
+                }
             }
         }
 
         // ── تنظیمات و قوانین ──
         item {
-            ChaiCard {
-                ProfileMenuRow(Icons.Filled.Settings, "تنظیمات", "دسترسی‌ها، تم، یادآور", onOpenSettings)
-                Divider()
-                ProfileMenuRow(null, "قوانین و مقررات", "شرایط استفاده از سرویس") { onOpenLegal(LegalKind.TERMS) }
-                Divider()
-                ProfileMenuRow(null, "سیاست حریم خصوصی", "چه داده‌ای جمع می‌کنیم") { onOpenLegal(LegalKind.PRIVACY) }
+            ChaiCard(index = 2) {
+                ProfileMenuRow("⚙️", "تنظیمات", "دسترسی‌ها، تم، یادآور", onOpenSettings)
+                ProfileDivider()
+                ProfileMenuRow("📄", "قوانین و مقررات", "شرایط استفاده از سرویس") {
+                    onOpenLegal(LegalKind.TERMS)
+                }
+                ProfileDivider()
+                ProfileMenuRow("🛡️", "سیاست حریم خصوصی", "چه داده‌ای جمع می‌کنیم") {
+                    onOpenLegal(LegalKind.PRIVACY)
+                }
+            }
+        }
+
+        // ── خروج ──
+        item {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Chai.Surface)
+                    .clickable { onLogout() }
+                    .padding(horizontal = 14.dp, vertical = 13.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(13.dp))
+                        .background(Chai.Danger.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center
+                ) { Text("⏏️", style = MaterialTheme.typography.titleMedium) }
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("خروج از حساب", style = MaterialTheme.typography.titleMedium, color = Chai.Danger)
+                    Text(
+                        "آمار روی این گوشی می‌ماند",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Chai.Text2
+                    )
+                }
             }
         }
 
         item {
             Text(
-                "خروج از حساب",
-                style = MaterialTheme.typography.labelLarge,
-                color = Chai.Danger,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Chai.Surface)
-                    .clickable { onLogout() }
-                    .padding(14.dp),
+                About.VERSION + " · چای",
+                style = MaterialTheme.typography.labelSmall,
+                color = Chai.Text2,
+                modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
         }
@@ -869,8 +963,22 @@ fun ProfileScreen(
 }
 
 @Composable
+private fun ProfilePill(text: String, bg: Color, fg: Color) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.Bold,
+        color = fg,
+        modifier = Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(bg)
+            .padding(horizontal = 11.dp, vertical = 6.dp)
+    )
+}
+
+@Composable
 private fun ProfileMenuRow(
-    icon: ImageVector?,
+    emoji: String,
     title: String,
     subtitle: String,
     onClick: () -> Unit
@@ -879,13 +987,17 @@ private fun ProfileMenuRow(
         Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 10.dp),
+            .padding(vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (icon != null) {
-            Icon(icon, contentDescription = null, tint = Chai.Primary, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(10.dp))
-        }
+        Box(
+            Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(13.dp))
+                .background(Chai.Soft),
+            contentAlignment = Alignment.Center
+        ) { Text(emoji, style = MaterialTheme.typography.titleMedium) }
+        Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleMedium, color = Chai.Text)
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Chai.Text2)
@@ -897,6 +1009,16 @@ private fun ProfileMenuRow(
             modifier = Modifier.size(17.dp)
         )
     }
+}
+
+@Composable
+private fun ProfileDivider() {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(Chai.Line)
+    )
 }
 
 @Composable

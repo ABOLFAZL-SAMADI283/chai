@@ -99,20 +99,26 @@ object Distractors {
     )
 }
 
+/** رقم‌های لاتین را فارسی می‌کند — برای نمایش همهٔ اعداد در متن */
+fun faDigits(s: String): String {
+    val digits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
+    return s.map { if (it in '0'..'9') digits[it - '0'] else it }.joinToString("")
+}
+
 object TimeFmt {
     /** قالب mm:ss — نام تابع نباید دونقطه داشته باشد */
     fun mmSs(totalSec: Int): String {
         val m = totalSec / 60
         val s = totalSec % 60
-        return "%02d:%02d".format(m, s)
+        return faDigits("%02d:%02d".format(m, s))
     }
 
     fun humanHours(sec: Int): String {
         val h = TimeUnit.SECONDS.toHours(sec.toLong())
         val m = TimeUnit.SECONDS.toMinutes(sec.toLong()) % 60
         return when {
-            h > 0 -> "${h} ساعت و $m دقیقه"
-            else -> "$m دقیقه"
+            h > 0 -> faDigits("$h") + " ساعت و " + faDigits("$m") + " دقیقه"
+            else -> faDigits("$m") + " دقیقه"
         }
     }
 
